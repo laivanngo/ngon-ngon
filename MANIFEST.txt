@@ -1,0 +1,282 @@
+# =============================================================================
+# MANIFEST.txt — Danh Sách Linh Kiện (Bill of Materials)
+# =============================================================================
+# File này liệt kê TẤT CẢ file bắt buộc phải tồn tại trong dự án.
+# Giống như danh sách phụ tùng của một chiếc xe — thiếu 1 con ốc thì
+# xe KHÔNG ĐƯỢC xuất xưởng.
+#
+# QUY TẮC CHO AI:
+# - Khi THÊM file mới → PHẢI thêm dòng vào MANIFEST.txt
+# - Khi XÓA file → PHẢI xóa dòng khỏi MANIFEST.txt
+# - Khi ĐỔI TÊN file → PHẢI cập nhật dòng trong MANIFEST.txt
+# - preflight.sh sẽ kiểm tra MANIFEST.txt mỗi lần chạy
+# - Nếu thiếu BẤT KỲ file nào → FAIL → không được deploy
+#
+# FORMAT: loại|đường_dẫn|kích_thước_tối_thiểu(bytes)|mô_tả
+#   loại: required = bắt buộc, binary = file nhị phân (ảnh, âm thanh)
+# =============================================================================
+
+# === INFRASTRUCTURE ===
+required|docker-compose.yml|500|Docker orchestration
+required|.gitignore|100|Git ignore rules
+required|setup-vps.sh|500|VPS setup script
+required|init-ssl.sh|200|SSL installation script
+required|create-env.sh|200|Environment creation script
+required|.env.example|200|Environment template
+required|MANIFEST.txt|100|File inventory (this file)
+required|preflight.sh|500|QC validation script
+required|AI_GUIDE.md|500|AI contributor guide
+required|HUONG_DAN_TRIEN_KHAI.md|500|Deployment guide
+required|.github/workflows/deploy.yml|100|CI/CD pipeline
+
+# === NGINX ===
+required|nginx/nginx.conf|1000|Nginx configuration
+required|nginx/Dockerfile|50|Nginx Docker image
+
+# === BACKEND — Core ===
+required|backend/Dockerfile|200|API Docker image
+required|backend/.dockerignore|20|Docker ignore
+required|backend/entrypoint.sh|200|Container entrypoint
+required|backend/requirements.txt|100|Python dependencies
+required|backend/alembic.ini|100|Alembic config
+required|backend/alembic/env.py|200|Alembic environment
+required|backend/alembic/script.py.mako|50|Alembic template
+required|backend/scripts/__init__.py|0|Package marker
+required|backend/scripts/seed.py|5000|Seed data script
+
+# === BACKEND — App Core ===
+required|backend/app/__init__.py|0|Package marker
+required|backend/app/main.py|2000|FastAPI app factory
+required|backend/app/config.py|500|Settings
+required|backend/app/database.py|500|DB engine + session
+
+# === BACKEND — Shared Kernel ===
+required|backend/app/shared/__init__.py|0|Shared: __init__.py
+required|backend/app/shared/constants.py|0|Shared: constants.py
+required|backend/app/shared/events.py|0|Shared: events.py
+required|backend/app/shared/exceptions.py|0|Shared: exceptions.py
+required|backend/app/shared/orm_models.py|0|Shared: orm_models.py
+required|backend/app/shared/utils.py|0|Shared: utils.py
+required|backend/app/shared/value_objects.py|0|Shared: value_objects.py
+required|backend/app/shared/ws_manager.py|0|Shared: ws_manager.py
+
+# === BACKEND — Bounded Contexts ===
+required|backend/app/catalog/__init__.py|0|catalog: package
+required|backend/app/catalog/domain/__init__.py|0|catalog/domain: package
+required|backend/app/catalog/domain/entities.py|10|catalog/domain: entities.py
+required|backend/app/catalog/domain/events.py|10|catalog/domain: events.py
+required|backend/app/catalog/domain/repository.py|10|catalog/domain: repository.py
+required|backend/app/catalog/domain/services.py|10|catalog/domain: services.py
+required|backend/app/catalog/domain/value_objects.py|10|catalog/domain: value_objects.py
+required|backend/app/catalog/application/__init__.py|0|catalog/application: package
+required|backend/app/catalog/application/analytics_port.py|10|catalog/application: analytics_port.py
+required|backend/app/catalog/application/commands.py|10|catalog/application: commands.py
+required|backend/app/catalog/application/event_handlers.py|10|catalog/application: event_handlers.py
+required|backend/app/catalog/application/queries.py|10|catalog/application: queries.py
+required|backend/app/catalog/infrastructure/__init__.py|0|catalog/infrastructure: package
+required|backend/app/catalog/infrastructure/analytics_adapter.py|10|catalog/infrastructure: analytics_adapter.py
+required|backend/app/catalog/infrastructure/orm_models.py|10|catalog/infrastructure: orm_models.py
+required|backend/app/catalog/infrastructure/pricing_adapter.py|10|catalog/infrastructure: pricing_adapter.py
+required|backend/app/catalog/infrastructure/repository.py|10|catalog/infrastructure: repository.py
+required|backend/app/catalog/presentation/__init__.py|0|catalog/presentation: package
+required|backend/app/catalog/presentation/admin_router.py|10|catalog/presentation: admin_router.py
+required|backend/app/catalog/presentation/dependencies.py|10|catalog/presentation: dependencies.py
+required|backend/app/catalog/presentation/router.py|10|catalog/presentation: router.py
+required|backend/app/catalog/presentation/schemas.py|10|catalog/presentation: schemas.py
+required|backend/app/ordering/__init__.py|0|ordering: package
+required|backend/app/ordering/domain/__init__.py|0|ordering/domain: package
+required|backend/app/ordering/domain/catalog_port.py|10|ordering/domain: catalog_port.py
+required|backend/app/ordering/domain/promotions_port.py|10|ordering/domain: flash sale pricing port
+required|backend/app/ordering/domain/entities.py|10|ordering/domain: entities.py
+required|backend/app/ordering/domain/events.py|10|ordering/domain: events.py
+required|backend/app/ordering/domain/services.py|10|ordering/domain: services.py
+required|backend/app/ordering/domain/value_objects.py|10|ordering/domain: value_objects.py
+required|backend/app/ordering/application/__init__.py|0|ordering/application: package
+required|backend/app/ordering/application/analytics_port.py|10|ordering/application: analytics_port.py
+required|backend/app/ordering/application/event_handlers.py|10|ordering/application: event_handlers.py
+required|backend/app/ordering/application/use_cases.py|10|ordering/application: use_cases.py
+required|backend/app/ordering/infrastructure/__init__.py|0|ordering/infrastructure: package
+required|backend/app/ordering/infrastructure/analytics_adapter.py|10|ordering/infrastructure: analytics_adapter.py
+required|backend/app/ordering/infrastructure/kitchen_adapter.py|10|ordering/infrastructure: kitchen_adapter.py
+required|backend/app/ordering/infrastructure/kitchen_queue_adapter.py|10|ordering/infrastructure: kitchen_queue_adapter.py
+required|backend/app/ordering/infrastructure/orm_models.py|10|ordering/infrastructure: orm_models.py
+required|backend/app/ordering/infrastructure/pricing.py|10|ordering/infrastructure: pricing.py
+required|backend/app/ordering/infrastructure/repository.py|10|ordering/infrastructure: repository.py
+required|backend/app/ordering/presentation/__init__.py|0|ordering/presentation: package
+required|backend/app/ordering/presentation/admin_router.py|10|ordering/presentation: admin_router.py
+required|backend/app/ordering/presentation/dependencies.py|10|ordering/presentation: dependencies.py
+required|backend/app/ordering/presentation/router.py|10|ordering/presentation: router.py
+required|backend/app/ordering/presentation/schemas.py|10|ordering/presentation: schemas.py
+required|backend/app/crm/__init__.py|0|crm: package
+required|backend/app/crm/domain/__init__.py|0|crm/domain: package
+required|backend/app/crm/domain/entities.py|10|crm/domain: entities.py
+required|backend/app/crm/domain/events.py|10|crm/domain: events.py
+required|backend/app/crm/domain/services.py|10|crm/domain: services.py
+required|backend/app/crm/domain/value_objects.py|10|crm/domain: value_objects.py
+required|backend/app/crm/application/__init__.py|0|crm/application: package
+required|backend/app/crm/application/event_handlers.py|10|crm/application: event_handlers.py
+required|backend/app/crm/application/use_cases.py|10|crm/application: use_cases.py
+required|backend/app/crm/infrastructure/__init__.py|0|crm/infrastructure: package
+required|backend/app/crm/infrastructure/orm_models.py|10|crm/infrastructure: orm_models.py
+required|backend/app/crm/infrastructure/repository.py|10|crm/infrastructure: repository.py
+required|backend/app/crm/presentation/__init__.py|0|crm/presentation: package
+required|backend/app/crm/presentation/dependencies.py|10|crm/presentation: dependencies.py
+required|backend/app/crm/presentation/router.py|10|crm/presentation: router.py
+required|backend/app/crm/presentation/schemas.py|10|crm/presentation: schemas.py
+required|backend/app/promotions/__init__.py|0|promotions: package
+required|backend/app/promotions/domain/__init__.py|0|promotions/domain: package
+required|backend/app/promotions/domain/services.py|10|promotions/domain: services.py
+required|backend/app/promotions/domain/flash_sale.py|10|promotions/domain: flash_sale entity + repo ABC
+required|backend/app/promotions/domain/events.py|10|promotions/domain: flash sale domain events
+required|backend/app/promotions/application/__init__.py|0|promotions/application: package
+required|backend/app/promotions/application/use_cases.py|10|promotions/application: use_cases.py
+required|backend/app/promotions/application/flash_sale_use_cases.py|10|promotions/application: flash sale use cases
+required|backend/app/promotions/application/event_handlers.py|10|promotions/application: flash sale event handlers
+required|backend/app/promotions/infrastructure/__init__.py|0|promotions/infrastructure: package
+required|backend/app/promotions/infrastructure/flag_adapter.py|10|promotions/infrastructure: flag_adapter.py
+required|backend/app/promotions/infrastructure/orm_models.py|10|promotions/infrastructure: orm_models.py
+required|backend/app/promotions/infrastructure/repository.py|10|promotions/infrastructure: repository.py
+required|backend/app/promotions/infrastructure/flash_sale_repository.py|10|promotions/infrastructure: flash sale SQL repo
+required|backend/app/promotions/infrastructure/flash_sale_pricing_adapter.py|10|promotions/infrastructure: pricing adapter
+required|backend/app/promotions/infrastructure/scheduler.py|10|promotions/infrastructure: background scheduler
+required|backend/app/promotions/presentation/__init__.py|0|promotions/presentation: package
+required|backend/app/promotions/presentation/dependencies.py|10|promotions/presentation: dependencies.py
+required|backend/app/promotions/presentation/router.py|10|promotions/presentation: router.py
+required|backend/app/promotions/presentation/flash_sale_router.py|10|promotions/presentation: flash sale endpoints
+required|backend/app/promotions/presentation/schemas.py|10|promotions/presentation: schemas.py
+required|backend/app/kitchen/__init__.py|0|kitchen: package
+required|backend/app/kitchen/domain/__init__.py|0|kitchen/domain: package
+required|backend/app/kitchen/domain/entities.py|10|kitchen/domain: entities.py
+required|backend/app/kitchen/domain/ports.py|10|kitchen/domain: ports.py
+required|backend/app/kitchen/domain/services.py|10|kitchen/domain: services.py
+required|backend/app/kitchen/application/__init__.py|0|kitchen/application: package
+required|backend/app/kitchen/application/use_cases.py|10|kitchen/application: use_cases.py
+required|backend/app/kitchen/infrastructure/__init__.py|0|kitchen/infrastructure: package
+required|backend/app/kitchen/infrastructure/repository.py|10|kitchen/infrastructure: repository.py
+required|backend/app/kitchen/presentation/__init__.py|0|kitchen/presentation: package
+required|backend/app/kitchen/presentation/dependencies.py|10|kitchen/presentation: dependencies.py
+required|backend/app/kitchen/presentation/router.py|10|kitchen/presentation: router.py
+required|backend/app/identity/__init__.py|0|identity: package
+required|backend/app/identity/domain/__init__.py|0|identity/domain: package
+required|backend/app/identity/domain/entities.py|10|identity/domain: entities.py
+required|backend/app/identity/domain/services.py|10|identity/domain: services.py
+required|backend/app/identity/infrastructure/__init__.py|0|identity/infrastructure: package
+required|backend/app/identity/infrastructure/auth.py|10|identity/infrastructure: auth.py
+required|backend/app/identity/infrastructure/orm_models.py|10|identity/infrastructure: orm_models.py
+required|backend/app/identity/presentation/__init__.py|0|identity/presentation: package
+required|backend/app/identity/presentation/middleware.py|10|identity/presentation: middleware.py
+required|backend/app/identity/presentation/router.py|10|identity/presentation: router.py
+required|backend/app/identity/presentation/schemas.py|10|identity/presentation: schemas.py
+
+# === BACKEND — Alembic Migrations ===
+required|backend/alembic/versions/001_initial_schema.py|100|Migration: 001_initial_schema.py
+required|backend/alembic/versions/002_growth_features.py|100|Migration: 002_growth_features.py
+required|backend/alembic/versions/003_product_toppings_crosssell.py|100|Migration: 003_product_toppings_crosssell.py
+required|backend/alembic/versions/004_add_delivery_type.py|100|Migration: 004_add_delivery_type.py
+required|backend/alembic/versions/005_add_stores_multitenant.py|100|Migration: 005_add_stores_multitenant.py
+required|backend/alembic/versions/006_add_growth_settings.py|100|Migration: 006_add_growth_settings.py
+required|backend/alembic/versions/007_spend_based_loyalty.py|100|Migration: 007_spend_based_loyalty.py
+required|backend/alembic/versions/008_flash_sales.py|100|Migration: 008_flash_sales.py
+required|backend/alembic/versions/009_flash_sale_multi_products.py|90|Migration: 009_flash_sale_multi_products.py
+
+# === BACKEND — Tests ===
+required|backend/tests/__init__.py|0|Tests package
+required|backend/tests/conftest.py|100|Test config
+required|backend/tests/test_crm_features.py|50|Test: test_crm_features.py
+required|backend/tests/test_menu.py|50|Test: test_menu.py
+required|backend/tests/test_orders.py|50|Test: test_orders.py
+required|backend/tests/unit/test_catalog_domain.py|50|Test: test_catalog_domain.py
+required|backend/tests/unit/test_crm_domain.py|50|Test: test_crm_domain.py
+required|backend/tests/unit/test_crm_domain.py|50|Test: test_crm_domain.py
+required|backend/tests/unit/test_crm_settings.py|50|Test: test_crm_settings.py
+required|backend/tests/unit/test_crm_use_cases.py|50|Test: test_crm_use_cases.py
+required|backend/tests/unit/test_kitchen_and_shared.py|50|Test: test_kitchen_and_shared.py
+required|backend/tests/unit/test_ordering_entities.py|50|Test: test_ordering_entities.py
+required|backend/tests/unit/test_ordering_value_objects.py|50|Test: test_ordering_value_objects.py
+required|backend/tests/unit/test_flash_sale_domain.py|50|Test: test_flash_sale_domain.py
+required|backend/tests/unit/test_flash_sale_use_cases.py|50|Test: test_flash_sale_use_cases.py
+required|backend/tests/unit/test_pricing_with_flash_sale.py|50|Test: test_pricing_with_flash_sale.py
+
+# === FRONTEND — HTML Pages ===
+required|frontend/index.html|5000|Customer menu page
+required|frontend/admin.html|3000|Admin panel
+required|frontend/kds.html|3000|Kitchen display
+
+# === FRONTEND — Config ===
+required|frontend/manifest.json|100|PWA manifest
+required|frontend/package.json|50|Node package
+required|frontend/vite.config.js|100|Vite build config
+required|frontend/sw.js|500|Service Worker
+
+# === FRONTEND — CSS ===
+required|frontend/css/growth.css|100|Growth features CSS
+
+# === FRONTEND — JavaScript Modules ===
+required|frontend/src/admin/analytics.js|50|JS: analytics
+required|frontend/src/admin/auth.js|50|JS: auth
+required|frontend/src/admin/categories.js|50|JS: categories
+required|frontend/src/admin/cross-sell.js|50|JS: cross-sell
+required|frontend/src/admin/dashboard.js|50|JS: dashboard
+required|frontend/src/admin/main.js|50|JS: main
+required|frontend/src/admin/notifications.js|50|JS: notifications
+required|frontend/src/admin/orders.js|50|JS: orders
+required|frontend/src/admin/product-modal.js|50|JS: product-modal
+required|frontend/src/admin/products.js|50|JS: products
+required|frontend/src/admin/reviews.js|50|JS: reviews
+required|frontend/src/admin/settings.js|50|JS: settings
+required|frontend/src/admin/toppings.js|50|JS: toppings
+required|frontend/src/admin/websocket.js|50|JS: websocket
+required|frontend/src/admin/flash-sales.js|50|JS: flash-sales admin CRUD
+required|frontend/src/customer/cart.js|50|JS: cart
+required|frontend/src/customer/checkout.js|50|JS: checkout
+required|frontend/src/customer/data-loader.js|50|JS: data-loader
+required|frontend/src/customer/growth.js|50|JS: growth
+required|frontend/src/customer/main.js|50|JS: main
+required|frontend/src/customer/menu.js|50|JS: menu
+required|frontend/src/customer/product-detail.js|50|JS: product-detail
+required|frontend/src/customer/pwa.js|50|JS: pwa
+required|frontend/src/customer/share.js|50|JS: share
+required|frontend/src/customer/social-proof.js|50|JS: social-proof
+required|frontend/src/customer/state.js|50|JS: state
+required|frontend/src/customer/time-deals.js|50|JS: time-deals
+required|frontend/src/customer/flash-sale.js|50|JS: flash-sale customer banner
+required|frontend/src/kds/auth.js|50|JS: auth
+required|frontend/src/kds/main.js|50|JS: main
+required|frontend/src/kds/orders.js|50|JS: orders
+required|frontend/src/kds/sound.js|50|JS: sound
+required|frontend/src/kds/websocket.js|50|JS: websocket
+required|frontend/src/shared/api.js|50|JS: api
+required|frontend/src/shared/constants.js|50|JS: constants
+required|frontend/src/shared/customer-api.js|50|JS: customer-api
+required|frontend/src/shared/formatters.js|50|JS: formatters
+required|frontend/src/shared/ui.js|50|JS: ui
+
+# === FRONTEND — Binary Assets (ảnh, âm thanh) ===
+binary|frontend/icon-192.png|1000|PWA icon 192px
+binary|frontend/icon-512.png|1000|PWA icon 512px
+binary|frontend/apple-touch-icon.png|1000|Apple touch icon
+binary|frontend/images/icon-192.png|1000|Images: PWA icon 192
+binary|frontend/images/icon-512.png|1000|Images: PWA icon 512
+binary|frontend/images/chan-ga-sot-thai.jpg|500|Product: Chân gà sốt Thái
+binary|frontend/sounds/new-order.wav|1000|Sound: new order notification
+
+# === DOCS ===
+required|docs/ARCHITECTURE.md|100|Doc: ARCHITECTURE.md
+required|docs/CHANGELOG.md|100|Doc: CHANGELOG.md
+required|docs/DATABASE.md|100|Doc: DATABASE.md
+required|docs/DDD_MIGRATION_GUIDE.md|100|Doc: DDD_MIGRATION_GUIDE.md
+required|docs/DDD_PHASE3_GUIDE.md|100|Doc: DDD_PHASE3_GUIDE.md
+required|docs/DDD_PHASE4_GUIDE.md|100|Doc: DDD_PHASE4_GUIDE.md
+required|docs/DDD_PHASE5_GUIDE.md|100|Doc: DDD_PHASE5_GUIDE.md
+required|docs/FLASH_SALE_GUIDE.md|100|Doc: Flash Sale user guide
+
+# === ROOT FILES ===
+required|README.md|500|Project README
+required|PROMPT_TEMPLATES.md|200|AI prompt templates
+required|validate.sh|500|Legacy code validator
+required|run_full_test.sh|200|Full test runner
+required|preflight.sh|500|Pre-deploy QC script
+
+# === ADDITIONAL ===
+required|backend/tests/unit/__init__.py|0|Unit tests package
+binary|frontend/favicon.ico|100|Browser favicon

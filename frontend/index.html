@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ngon-Ngon | Menu Đặt Hàng Online — Giao Miễn Phí</title>
+<meta name="description" content="Ngon-Ngon - Menu online đặt hàng giao tận công ty trong KCN. Trà sữa, sinh tố, cà phê, đồ ăn vặt. Giao miễn phí. Hotline 0378.148.148">
+<meta name="theme-color" content="#E8430A">
+<link rel="manifest" href="manifest.json" id="manifestLink">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<script>
+fetch('manifest.json',{method:'HEAD'}).then(r=>{
+  if(!r.ok) throw new Error('manifest not found');
+}).catch(()=>{
+  const m={name:"Ngon-Ngon - Menu Đặt Hàng",short_name:"Ngon-Ngon",description:"Menu đặt hàng online - Giao miễn phí tận công ty",start_url:location.origin+"/?source=pwa",scope:location.origin+"/",display:"standalone",background_color:"#FAFAF7",theme_color:"#E8430A",orientation:"portrait",lang:"vi",categories:["food"],icons:[{src:location.origin+"/icon-192.png",sizes:"192x192",type:"image/png",purpose:"any maskable"},{src:location.origin+"/icon-512.png",sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
+  const blob=new Blob([JSON.stringify(m)],{type:'application/json'});
+  document.getElementById('manifestLink').href=URL.createObjectURL(blob);
+});
+</script>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ngon-Ngon">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--brand:#E8430A;--brand-dk:#C23508;--brand-lt:#FFF0EB;
+--accent:#FF8C00;--green:#2E9E5A;--green-lt:#E6F7ED;
+--zalo:#0068FF;--gold:#F5A623;
+--bg:#FAFAF7;--card:#FFF;--text:#1A1A1A;--text2:#6B6B6B;--hint:#9E9E9E;
+--bdr:#F0EDE8;--sh:0 2px 10px rgba(0,0,0,.07);--sh-lg:0 6px 24px rgba(0,0,0,.1);
+--r:14px;--rs:10px;
+}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden;padding-bottom:90px;
+}
+
+/* === HEADER === */
+.hd{background:var(--brand);color:#fff;padding:14px 16px 26px;position:relative}
+.hd::after{content:'';position:absolute;bottom:0;left:0;right:0;height:18px;background:var(--bg);border-radius:18px 18px 0 0}
+.hd-top{display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:22px;font-weight:800;display:flex;align-items:center;gap:6px}
+.logo-n{background:#fff;color:var(--brand);width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px}
+.hd-ph{background:rgba(255,255,255,.2);padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;text-decoration:none;color:#fff;display:flex;align-items:center;gap:4px}
+.hd-tags{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+.hd-tag{font-size:11px;font-weight:600;background:rgba(255,255,255,.18);padding:3px 9px;border-radius:6px}
+
+/* === SOCIAL PROOF BAR === */
+.sp-bar{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;background:#FFF8E1;font-size:11.5px;font-weight:600;color:#E65100;border-bottom:1px solid #FFE0B2;overflow:hidden}
+.sp-dot{width:7px;height:7px;border-radius:50%;background:#E65100;animation:pulse 1.5s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+#spText{transition:opacity .3s}
+
+/* === TIME DEAL === */
+.td{margin:10px 12px 0;background:linear-gradient(135deg,#1A1A1A,#333);color:#fff;border-radius:var(--r);padding:13px 15px;position:relative;overflow:hidden}
+.td::before{content:'';position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:var(--brand);opacity:.12}
+.td-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);font-weight:700;margin-bottom:3px}
+.td-title{font-size:15px;font-weight:700}
+.td-sub{font-size:11.5px;color:#aaa;margin-top:2px}
+.td-timer{display:inline-flex;align-items:center;gap:4px;background:var(--brand);padding:3px 9px;border-radius:6px;font-size:12px;font-weight:700;margin-top:7px}
+
+/* === FLASH SALE BANNER === */
+.flash-sale-banner{margin:10px 12px 0;background:linear-gradient(135deg,#d32f2f,#ff6f00);color:#fff;border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden;animation:flashPulse 2s ease-in-out infinite}
+@keyframes flashPulse{0%,100%{box-shadow:0 0 0 0 rgba(211,47,47,.4)}50%{box-shadow:0 0 12px 4px rgba(211,47,47,.2)}}
+.flash-sale-urgent{animation:flashUrgent 1s ease-in-out infinite}
+@keyframes flashUrgent{0%,100%{opacity:1}50%{opacity:.88}}
+.flash-sale-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.flash-sale-badge{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:4px}
+.flash-sale-countdown{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.flash-sale-title{font-size:16px;font-weight:700;line-height:1.3}
+.flash-sale-subtitle{font-size:12px;opacity:.85;margin-top:2px}
+.flash-sale-remaining{margin-top:8px}
+.flash-sale-bar-bg{height:5px;background:rgba(255,255,255,.25);border-radius:3px;overflow:hidden}
+.flash-sale-bar{height:100%;background:#fff;border-radius:3px;transition:width .5s ease}
+.flash-sale-count{font-size:11px;opacity:.9;margin-top:3px;display:block}
+.fs-items{display:flex;gap:8px;margin-top:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+.fs-items::-webkit-scrollbar{display:none}
+.fs-item{flex-shrink:0;width:100px;background:rgba(255,255,255,.15);border-radius:8px;padding:6px;text-align:center;cursor:pointer;transition:transform .12s}
+.fs-item:active{transform:scale(.95)}
+.fs-item-img{width:100%;height:60px;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1)}
+.fs-item-img img{width:100%;height:100%;object-fit:cover}
+.fs-item-emoji{font-size:28px}
+.fs-item-name{font-size:10px;font-weight:600;margin-top:4px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+.fs-item-price{margin-top:3px}
+.fs-old{font-size:9px;text-decoration:line-through;opacity:.7;margin-right:3px}
+.fs-new{font-size:11px;font-weight:800;color:#FFD600}
+
+/* === CTA ROW === */
+.cta-row{display:flex;gap:8px;padding:10px 12px 4px}
+.cta{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 8px;border-radius:var(--rs);font-weight:700;font-size:13.5px;text-decoration:none;color:#fff;border:none;cursor:pointer;font-family:inherit;transition:transform .1s}
+.cta:active{transform:scale(.96)}
+.cta.z{background:var(--zalo)}.cta.c{background:var(--green)}
+.cta svg{width:17px;height:17px;flex-shrink:0}
+
+/* === A2HS FULLSCREEN MODAL === */
+.a2hs-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.75);z-index:5000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.a2hs-modal.show{display:flex}
+.a2hs-box{background:#fff;border-radius:24px;width:100%;max-width:360px;overflow:hidden;animation:a2hsPop .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+@keyframes a2hsPop{from{opacity:0;transform:scale(.85) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.a2hs-top{background:linear-gradient(135deg,var(--brand),#FF6B35);padding:28px 24px 24px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.a2hs-top::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.1)}
+.a2hs-phone{font-size:56px;margin-bottom:8px;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.2));animation:a2hsFloat 3s ease-in-out infinite}
+@keyframes a2hsFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.a2hs-headline{font-size:20px;font-weight:800;line-height:1.25;margin-bottom:4px}
+.a2hs-subline{font-size:13px;opacity:.9;font-weight:500}
+.a2hs-benefits{padding:16px 20px 6px;display:flex;flex-direction:column;gap:10px}
+.a2hs-benefit{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600;color:var(--text)}
+.a2hs-benefit-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.a2hs-benefit-ic.b1{background:#FFF3E0;color:#FF6F00}
+.a2hs-benefit-ic.b2{background:#E8F5E9;color:#2E7D32}
+.a2hs-benefit-ic.b3{background:#E3F2FD;color:#1565C0}
+.a2hs-benefit-ic.b4{background:#FCE4EC;color:#C62828}
+.a2hs-actions{padding:14px 20px 20px;display:flex;flex-direction:column;gap:8px}
+.a2hs-install{width:100%;padding:15px;border-radius:14px;background:var(--brand);color:#fff;border:none;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 4px 16px rgba(232,67,10,.35);transition:transform .1s}
+.a2hs-install:active{transform:scale(.97)}
+.a2hs-later{width:100%;padding:12px;background:none;border:none;color:var(--hint);font-size:13px;cursor:pointer;font-family:inherit;font-weight:500}
+
+/* === A2HS MINI BANNER === */
+.a2hs{margin:6px 12px;background:linear-gradient(135deg,#1565C0,#0D47A1);color:#fff;border-radius:var(--rs);padding:10px 14px;display:none;align-items:center;gap:10px;cursor:pointer;transition:transform .1s}
+.a2hs:active{transform:scale(.98)}
+.a2hs.show{display:flex}
+.a2hs-icon{font-size:28px;flex-shrink:0}
+.a2hs-text{flex:1}
+.a2hs-title{font-size:13px;font-weight:700}
+.a2hs-sub{font-size:11px;opacity:.8}
+.a2hs-close{background:rgba(255,255,255,.2);border:none;color:#fff;width:24px;height:24px;border-radius:50%;font-size:14px;cursor:pointer;flex-shrink:0}
+
+/* === Reorder CSS removed — now styled by growth.css === */
+
+/* === SEARCH === */
+.search-w{padding:6px 12px 6px;position:relative}
+.search-i{width:100%;padding:10px 14px 10px 38px;border-radius:var(--rs);border:2px solid var(--bdr);font-size:14px;font-family:inherit;font-weight:500;background:var(--card);color:var(--text);outline:none;transition:border-color .2s}
+.search-i:focus{border-color:var(--brand)}
+.search-i::placeholder{color:var(--hint)}
+.search-ic{position:absolute;left:24px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;color:var(--hint)}
+
+/* === CATEGORY TABS === */
+.tabs{display:flex;gap:5px;padding:6px 12px 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:7px 14px;border-radius:22px;font-size:12.5px;font-weight:600;background:var(--card);color:var(--text2);border:1.5px solid var(--bdr);cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab.on{background:var(--brand);color:#fff;border-color:var(--brand);box-shadow:0 3px 10px rgba(232,67,10,.25)}
+
+/* === SECTION HEADER === */
+.sec-h{padding:12px 14px 6px;display:flex;align-items:center;gap:7px}
+.sec-em{font-size:20px}
+.sec-t{font-size:16px;font-weight:700}
+.sec-c{font-size:10.5px;color:var(--hint);background:var(--bdr);padding:2px 7px;border-radius:10px;font-weight:600}
+
+/* === PRODUCT GRID === */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 10px 6px}
+@media(min-width:420px){.grid{grid-template-columns:repeat(3,1fr)}}
+
+/* === PRODUCT LIST VIEW === */
+.list{display:flex;flex-direction:column;gap:6px;padding:0 10px 6px}
+
+/* List card */
+.lc{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;cursor:pointer;transition:transform .12s;display:flex;align-items:stretch;position:relative;border:2px solid transparent;min-height:88px}
+.lc:active{transform:scale(.98)}
+.lc.in{border-color:var(--green)}
+.lc-img{width:88px;min-width:88px;display:flex;align-items:center;justify-content:center;font-size:32px;position:relative;overflow:hidden}
+.lc-img img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+.lc-body{flex:1;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.lc-top{display:flex;align-items:flex-start;gap:6px}
+.lc-info{flex:1;min-width:0}
+.lc-name{font-size:13px;font-weight:700;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lc-desc{font-size:10.5px;color:var(--text2);margin-top:2px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.lc-badge{flex-shrink:0;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;color:#fff}
+.lc-badge.hot{background:var(--brand)}.lc-badge.best{background:var(--accent)}.lc-badge.fs{background:#d32f2f}
+.lc-bot{display:flex;align-items:center;justify-content:space-between;margin-top:4px;gap:4px}
+.lc-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.lc-price{font-size:14px;font-weight:800;color:var(--brand)}
+/* Quantity badge on list card */
+.lc-qty-badge{position:absolute;top:4px;right:4px;background:var(--green);color:#fff;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+
+/* === PRODUCT CARD (grid) === */
+.pc{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;cursor:pointer;transition:transform .12s;display:flex;flex-direction:column;position:relative;border:2px solid transparent}
+.pc:active{transform:scale(.97)}
+.pc.in{border-color:var(--green)}
+.pi{height:80px;display:flex;align-items:center;justify-content:center;font-size:36px;position:relative;overflow:hidden}
+.pi img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+.pi.bg-d{background:linear-gradient(135deg,#E8F5E9,#C8E6C9)}
+.pi.bg-t{background:linear-gradient(135deg,#FFF3E0,#FFE0B2)}
+.pi.bg-c{background:linear-gradient(135deg,#EFEBE9,#D7CCC8)}
+.pi.bg-s{background:linear-gradient(135deg,#FBE9E7,#FFCCBC)}
+.pi.bg-w{background:linear-gradient(135deg,#F3E5F5,#E1BEE7)}
+.pi.bg-o{background:linear-gradient(135deg,#E0F7FA,#B2EBF2)}
+.pi.bg-y{background:linear-gradient(135deg,#FCE4EC,#F8BBD0)}
+.pi.bg-j{background:linear-gradient(135deg,#FFF9C4,#FFF176)}
+.pi.bg-n{background:linear-gradient(135deg,#E3F2FD,#BBDEFB)}
+.pi.bg-x{background:linear-gradient(135deg,#FFF8E1,#FFECB3)}
+.pi.bg-k{background:linear-gradient(135deg,#4E342E,#6D4C41)}
+.bdg{position:absolute;top:5px;left:5px;padding:2px 6px;border-radius:5px;font-size:9.5px;font-weight:700;color:#fff;z-index:2}
+.bdg.hot{background:var(--brand)}.bdg.best{background:var(--accent)}.bdg.new{background:#7B1FA2}.bdg.fs{background:#d32f2f}
+.sold-t{position:absolute;bottom:3px;right:5px;font-size:8.5px;color:var(--hint);background:rgba(255,255,255,.85);padding:1px 5px;border-radius:3px;font-weight:600}
+.pb{padding:7px 9px 9px;flex:1;display:flex;flex-direction:column}
+.pn{font-size:12px;font-weight:600;line-height:1.25}
+.pd{font-size:10px;color:var(--text2);margin-top:1px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pbot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:4px}
+.pp{font-size:14px;font-weight:800;color:var(--brand)}
+.pp-old{font-size:11px;text-decoration:line-through;color:var(--hint);font-weight:500;margin-right:3px}
+.pp-fs{font-size:14px;font-weight:800;color:#d32f2f}
+.lc-old{font-size:11px;text-decoration:line-through;color:var(--hint);font-weight:500;margin-right:3px}
+.lc-fs{font-size:14px;font-weight:800;color:#d32f2f}
+/* Quantity badge on grid card */
+.pc-qty-badge{position:absolute;top:4px;right:4px;background:var(--green);color:#fff;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+
+/* === SHOW MORE BUTTON === */
+.more-btn{display:block;width:calc(100% - 20px);margin:4px 10px 8px;padding:10px;border-radius:var(--rs);border:1.5px dashed var(--bdr);background:var(--card);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:inherit;transition:all .15s}
+.more-btn:active{border-color:var(--brand);color:var(--brand)}
+
+/* === COMBO SCROLL === */
+.combo-s{display:flex;gap:10px;padding:0 12px 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.combo-s::-webkit-scrollbar{display:none}
+.cc{flex-shrink:0;width:260px;background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;cursor:pointer;transition:transform .12s;border:2px solid transparent}
+.cc:active{transform:scale(.97)}
+.cc.in{border-color:var(--green)}
+.cc-img{height:90px;background:linear-gradient(135deg,#FFECD2,#FCB69F);display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;overflow:hidden}
+.cc-img img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+.cc-badge{position:absolute;top:7px;left:7px;background:var(--brand);color:#fff;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.3px;z-index:2}
+.cc-save{position:absolute;top:7px;right:7px;background:var(--green);color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;z-index:2}
+.cc-body{padding:9px 11px 11px}
+.cc-name{font-size:13.5px;font-weight:700;margin-bottom:2px}
+.cc-desc{font-size:10.5px;color:var(--text2);margin-bottom:5px;line-height:1.3}
+.cc-pr{display:flex;align-items:baseline;gap:5px}
+.cc-old{font-size:12px;color:#bbb;text-decoration:line-through}
+.cc-new{font-size:15px;font-weight:800;color:var(--brand)}
+/* Combo qty badge */
+.cc-qty-badge{position:absolute;top:7px;right:52px;background:var(--green);color:#fff;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+
+/* ============================================== */
+/* === PRODUCT DETAIL BOTTOM SHEET (GrabFood) === */
+/* ============================================== */
+.pd-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:3000;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.pd-overlay.show{display:block}
+.pd-sheet{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:#fff;border-radius:20px 20px 0 0;z-index:3001;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:92vh;display:flex;flex-direction:column}
+.pd-sheet.show{transform:translateY(0)}
+.pd-handle{width:40px;height:4px;border-radius:2px;background:#ddd;margin:10px auto 0;flex-shrink:0}
+.pd-close{position:absolute;top:10px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.06);border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;color:var(--text2)}
+.pd-close:active{background:rgba(0,0,0,.12)}
+
+/* Product hero area */
+.pd-hero{width:100%;height:160px;display:flex;align-items:center;justify-content:center;font-size:72px;position:relative;flex-shrink:0;overflow:hidden}
+.pd-hero img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+.pd-hero-bg-d{background:linear-gradient(135deg,#E8F5E9,#C8E6C9)}
+.pd-hero-bg-t{background:linear-gradient(135deg,#FFF3E0,#FFE0B2)}
+.pd-hero-bg-c{background:linear-gradient(135deg,#EFEBE9,#D7CCC8)}
+.pd-hero-bg-s{background:linear-gradient(135deg,#FBE9E7,#FFCCBC)}
+.pd-hero-bg-w{background:linear-gradient(135deg,#F3E5F5,#E1BEE7)}
+.pd-hero-bg-o{background:linear-gradient(135deg,#E0F7FA,#B2EBF2)}
+.pd-hero-bg-y{background:linear-gradient(135deg,#FCE4EC,#F8BBD0)}
+.pd-hero-bg-j{background:linear-gradient(135deg,#FFF9C4,#FFF176)}
+.pd-hero-bg-n{background:linear-gradient(135deg,#E3F2FD,#BBDEFB)}
+.pd-hero-bg-x{background:linear-gradient(135deg,#FFF8E1,#FFECB3)}
+.pd-hero-bg-k{background:linear-gradient(135deg,#4E342E,#6D4C41)}
+.pd-hero-badge{position:absolute;top:10px;left:10px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;color:#fff;z-index:2}
+.pd-hero-badge.hot{background:var(--brand)}.pd-hero-badge.best{background:var(--accent)}
+.pd-sold{position:absolute;bottom:8px;right:10px;font-size:10px;color:var(--text2);background:rgba(255,255,255,.9);padding:2px 8px;border-radius:4px;font-weight:600;z-index:2}
+
+/* Product info */
+.pd-content{flex:1;overflow-y:auto;padding:0 16px 120px;-webkit-overflow-scrolling:touch}
+.pd-name{font-size:20px;font-weight:800;margin-top:12px;line-height:1.3}
+.pd-desc{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.5}
+.pd-price-row{display:flex;align-items:baseline;gap:8px;margin-top:8px}
+.pd-price{font-size:22px;font-weight:800;color:var(--brand)}
+.pd-old-price{font-size:14px;color:#bbb;text-decoration:line-through}
+
+/* Option sections */
+.pd-section{margin-top:16px;padding-top:14px;border-top:1px solid var(--bdr)}
+.pd-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.pd-section-title{font-size:14px;font-weight:700}
+.pd-section-req{font-size:10px;font-weight:600;color:var(--brand);background:var(--brand-lt);padding:2px 8px;border-radius:4px}
+.pd-section-opt{font-size:10px;font-weight:600;color:var(--hint);background:#f5f5f5;padding:2px 8px;border-radius:4px}
+
+/* Option chips (for size, sweetness, ice) */
+.pd-options{display:flex;gap:6px;flex-wrap:wrap}
+.pd-opt{padding:9px 16px;border-radius:10px;border:2px solid var(--bdr);background:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;position:relative}
+.pd-opt:active{transform:scale(.96)}
+.pd-opt.on{border-color:var(--brand);background:var(--brand-lt);color:var(--brand)}
+.pd-opt .pd-opt-price{font-size:11px;color:var(--hint);font-weight:500}
+.pd-opt.on .pd-opt-price{color:var(--brand)}
+.pd-opt-check{display:none;width:16px;height:16px;border-radius:50%;background:var(--brand);color:#fff;font-size:9px;align-items:center;justify-content:center;flex-shrink:0}
+.pd-opt.on .pd-opt-check{display:flex}
+
+/* Topping chips (multi-select) */
+.pd-toppings{display:flex;flex-direction:column;gap:6px}
+.pd-tp{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:2px solid var(--bdr);background:#fff;cursor:pointer;transition:all .15s}
+.pd-tp:active{transform:scale(.96)}
+.pd-tp.on{border-color:var(--green);background:var(--green-lt)}
+.pd-tp-em{font-size:18px;flex-shrink:0}
+.pd-tp-info{flex:1}
+.pd-tp-name{font-size:13px;font-weight:600}
+.pd-tp-price{font-size:11px;color:var(--hint)}
+.pd-tp.on .pd-tp-price{color:var(--green)}
+.pd-tp-chk{width:22px;height:22px;border-radius:6px;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;flex-shrink:0;transition:all .15s}
+.pd-tp.on .pd-tp-chk{border-color:var(--green);background:var(--green);color:#fff}
+
+/* Note input in detail */
+.pd-note{width:100%;padding:10px 12px;border-radius:10px;border:2px solid var(--bdr);font-size:13px;font-family:inherit;font-weight:500;outline:none;resize:none;height:56px;transition:border-color .2s;background:#fff}
+.pd-note:focus{border-color:var(--brand)}
+
+/* Quantity controls in detail sheet */
+.pd-qty-row{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:16px}
+.pd-qty-btn{width:40px;height:40px;border-radius:50%;border:2px solid var(--brand);background:#fff;color:var(--brand);font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s}
+.pd-qty-btn:active{background:var(--brand);color:#fff}
+.pd-qty-btn.dis{opacity:.3;pointer-events:none}
+.pd-qty-num{font-size:22px;font-weight:800;min-width:30px;text-align:center}
+
+/* Add to cart bar (fixed at bottom of detail sheet) */
+.pd-footer{position:absolute;bottom:0;left:0;right:0;background:#fff;padding:10px 16px;padding-bottom:max(10px,env(safe-area-inset-bottom));border-top:1px solid var(--bdr);box-shadow:0 -4px 16px rgba(0,0,0,.08)}
+.pd-add-btn{width:100%;padding:16px;border-radius:14px;background:var(--brand);color:#fff;border:none;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(232,67,10,.3);transition:transform .1s,background .15s}
+.pd-add-btn:active{transform:scale(.97);background:var(--brand-dk)}
+.pd-add-btn .pd-add-price{background:rgba(255,255,255,.25);padding:2px 10px;border-radius:8px;font-size:14px}
+
+/* =================================== */
+/* === CART/CHECKOUT FULL SHEET === */
+/* =================================== */
+.ck-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:4000;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.ck-overlay.show{display:block}
+.ck-sheet{position:fixed;top:0;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:var(--bg);z-index:4001;transform:translateX(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);display:flex;flex-direction:column}
+.ck-sheet.show{transform:translateX(0)}
+
+/* Checkout header */
+.ck-hd{background:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.ck-back{width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.05);border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text)}
+.ck-back:active{background:rgba(0,0,0,.1)}
+.ck-hd-title{font-size:17px;font-weight:800;flex:1}
+.ck-hd-clr{font-size:12px;color:var(--brand);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:600}
+
+/* Checkout content */
+.ck-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:200px}
+
+/* Cart items */
+.ck-items{background:#fff;margin:8px 0}
+.ck-item{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-bottom:1px solid var(--bdr)}
+.ck-item:last-child{border-bottom:none}
+.ck-item-em{font-size:28px;flex-shrink:0;width:40px;text-align:center}
+.ck-item-info{flex:1;min-width:0}
+.ck-item-name{font-size:14px;font-weight:700}
+.ck-item-detail{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.4}
+.ck-item-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.ck-item-price{font-size:15px;font-weight:800;color:var(--brand)}
+.ck-item-qty{display:flex;align-items:center;gap:4px}
+.ck-item-qbtn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--brand);background:#fff;color:var(--brand);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.ck-item-qbtn:active{background:var(--brand);color:#fff}
+.ck-item-qnum{min-width:20px;text-align:center;font-size:14px;font-weight:700}
+
+/* Upsell section */
+.ck-upsell{background:#fff;margin:8px 0;padding:12px 16px}
+.ck-upsell-title{font-size:12px;font-weight:700;color:var(--brand);margin-bottom:8px}
+.ck-upsell-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.ck-upsell-scroll::-webkit-scrollbar{display:none}
+.ck-upsell-item{flex-shrink:0;background:var(--brand-lt);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid transparent;transition:all .12s}
+.ck-upsell-item:active{border-color:var(--brand);transform:scale(.96)}
+
+/* Customer info section */
+.ck-info{background:#fff;margin:8px 0;padding:16px}
+.ck-info-title{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ck-field{margin-bottom:10px}
+.ck-field:last-child{margin-bottom:0}
+.ck-label{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.ck-label .req{color:var(--brand)}
+.ck-input{width:100%;padding:11px 14px;border-radius:10px;border:2px solid var(--bdr);font-size:14px;font-family:inherit;font-weight:500;outline:none;background:#fff;transition:border-color .2s}
+.ck-input:focus{border-color:var(--brand)}
+.ck-textarea{resize:none;height:60px}
+
+/* Order summary */
+.ck-summary{background:#fff;margin:8px 0;padding:16px}
+.ck-summary-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px;color:var(--text2)}
+.ck-summary-total{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;margin-top:8px;border-top:2px solid var(--text);font-size:16px;font-weight:800}
+.ck-summary-total-price{font-size:24px;font-weight:800;color:var(--brand)}
+
+/* Checkout footer (fixed at bottom) */
+.ck-footer{position:absolute;bottom:0;left:0;right:0;background:#fff;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));border-top:1px solid var(--bdr);box-shadow:0 -4px 20px rgba(0,0,0,.1)}
+
+/* === ORDER SUCCESS SCREEN === */
+.os{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:6000;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.os.show{display:flex}
+.os-box{background:#fff;border-radius:24px;width:100%;max-width:370px;overflow:hidden;animation:a2hsPop .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:90vh;overflow-y:auto}
+.os-hd{background:linear-gradient(135deg,#00C853,#00E676);padding:28px 20px 22px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.os-hd::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.12)}
+.os-check{font-size:48px;display:block;margin-bottom:8px;animation:checkBounce .6s cubic-bezier(.34,1.56,.64,1)}
+.os-hd-title{font-size:20px;font-weight:800}
+.os-hd-sub{font-size:13px;opacity:.9;margin-top:3px}
+.os-info{padding:16px 20px 8px;display:flex;flex-direction:column;gap:8px}
+.os-row{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text)}
+.os-icon{font-size:18px;flex-shrink:0;width:24px;text-align:center}
+.os-row b{color:var(--brand);font-weight:700}
+.os-progress{display:flex;align-items:center;justify-content:center;gap:0;padding:20px 16px 8px}
+.os-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+.os-step-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--hint);background:#fff}
+.os-step.active .os-step-dot{background:var(--green);color:#fff;border-color:var(--green)}
+.os-step-label{font-size:10px;color:var(--text2);font-weight:600;white-space:nowrap}
+.os-step-line{flex:1;height:2px;background:var(--bdr);min-width:16px;margin-bottom:18px}
+.os-actions{padding:14px 20px 20px;display:flex;flex-direction:column;gap:8px}
+.os-done-btn{width:100%;padding:16px;border-radius:14px;background:var(--brand);color:#fff;border:none;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(232,67,10,.35);transition:transform .1s}
+.os-done-btn:active{transform:scale(.97)}
+.os-call-btn{width:100%;padding:13px;border-radius:12px;background:#fff;border:2px solid var(--green);color:var(--green);font-size:14px;font-weight:600;text-decoration:none;text-align:center;display:block;transition:all .12s}
+.os-call-btn:active{background:var(--green-lt)}
+
+/* === DELIVERY TYPE SELECTOR === */
+.ck-delivery-opts{display:flex;flex-direction:column;gap:8px}
+.ck-del-opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--bdr);cursor:pointer;transition:all .15s}
+.ck-del-opt:active{transform:scale(.98)}
+.ck-del-opt.on{border-color:var(--brand);background:var(--brand-lt)}
+.ck-del-radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.ck-del-opt.on .ck-del-radio{border-color:var(--brand)}
+.ck-del-dot{width:10px;height:10px;border-radius:50%;background:transparent;transition:all .15s}
+.ck-del-opt.on .ck-del-dot{background:var(--brand)}
+.ck-del-info{flex:1}
+.ck-del-title{font-size:14px;font-weight:700}
+.ck-del-desc{font-size:11px;color:var(--text2);margin-top:1px}
+.ck-sched-row{margin-top:10px}
+
+/* === ORDER BUTTON (replaces Zalo) === */
+.ck-order-btn{width:100%;padding:16px;border-radius:14px;background:var(--brand);color:#fff;border:none;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 16px rgba(232,67,10,.3);transition:transform .1s;position:relative}
+.ck-order-btn:active{transform:scale(.97);background:var(--brand-dk)}
+.ck-order-btn:disabled{opacity:.6;pointer-events:none}
+.ck-order-price{background:rgba(255,255,255,.25);padding:2px 10px;border-radius:8px;font-size:14px}
+
+/* === TOAST === */
+.toast{position:fixed;bottom:90px;left:12px;right:12px;max-width:360px;margin:0 auto;background:#fff;border-radius:var(--rs);box-shadow:var(--sh-lg);padding:10px 14px;display:flex;align-items:center;gap:8px;z-index:900;transform:translateY(20px);opacity:0;transition:all .35s ease;pointer-events:none;font-size:12px;font-weight:600;border-left:3px solid var(--brand)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast-em{font-size:18px;flex-shrink:0}
+
+/* === TRUST === */
+.trust{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.trust-c{background:var(--card);border-radius:var(--rs);padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.trust-ic{font-size:22px;margin-bottom:3px}
+.trust-t{font-size:11.5px;font-weight:700}
+.trust-st{font-size:9.5px;color:var(--hint)}
+/* Loyalty CSS removed — now styled by growth.css */
+.share-row{padding:0 12px 8px;display:flex;gap:8px}
+.share-btn{flex:1;padding:10px;border-radius:var(--rs);border:1.5px solid var(--bdr);background:var(--card);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit;color:var(--text2);transition:all .15s}
+.share-btn:active{border-color:var(--brand);color:var(--brand)}
+
+/* === FOOTER === */
+.ft{text-align:center;padding:10px 16px 100px;font-size:11px;color:var(--hint);line-height:1.8}
+.ft b{color:var(--text2)}
+
+/* === CART BAR (floating) === */
+.cart{position:fixed;bottom:0;left:0;right:0;background:var(--card);box-shadow:0 -3px 16px rgba(0,0,0,.1);z-index:1000;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.cart.show{transform:translateY(0)}
+.cart-in{display:flex;align-items:center;padding:8px 12px 10px;gap:6px;max-width:480px;margin:0 auto}
+.cart-l{flex:1;min-width:0}
+.cart-lbl{font-size:11px;color:var(--text2)}.cart-lbl b{color:var(--text);font-weight:700}
+.cart-tot{font-size:18px;font-weight:800;color:var(--brand)}
+.cart-view-btn{padding:13px 22px;border-radius:var(--rs);font-weight:700;font-size:14px;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;transition:transform .1s;background:var(--brand);box-shadow:0 3px 12px rgba(232,67,10,.3)}
+.cart-view-btn:active{transform:scale(.96)}
+
+/* === SCROLL TOP === */
+.s-top{position:fixed;bottom:82px;right:10px;width:36px;height:36px;border-radius:50%;background:var(--brand);color:#fff;border:none;font-size:15px;font-weight:700;box-shadow:var(--sh-lg);cursor:pointer;z-index:999;opacity:0;pointer-events:none;transition:all .3s;display:flex;align-items:center;justify-content:center}
+.s-top.show{opacity:1;pointer-events:auto}
+
+/* === RESPONSIVE === */
+@media(min-width:768px){body{max-width:480px;margin:0 auto;box-shadow:var(--sh-lg)}.cart{max-width:480px;left:50%;margin-left:-240px}}
+
+/* === ANIMATIONS === */
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.pc,.cc,.lc{animation:fadeIn .3s ease both}
+.list .lc:nth-child(2){animation-delay:.03s}
+.list .lc:nth-child(3){animation-delay:.06s}
+.list .lc:nth-child(4){animation-delay:.09s}
+.grid .pc:nth-child(2){animation-delay:.03s}
+.grid .pc:nth-child(3){animation-delay:.06s}
+@keyframes flyToCart{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.3) translateY(60px)}}
+.fly-anim{animation:flyToCart .4s ease-out forwards;position:fixed;z-index:9999;pointer-events:none;font-size:28px}
+.empty-st{text-align:center;padding:36px 20px;color:var(--hint);font-size:13px}.empty-st .ee{font-size:42px;margin-bottom:6px}
+
+/* Success animation */
+@keyframes checkmark{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+<div class="hd-top">
+<div class="logo"><span class="logo-n">N</span>Ngon-Ngon</div>
+<a href="tel:0378148148" class="hd-ph">📞 0378.148.148</a>
+</div>
+<div class="hd-tags">
+<span class="hd-tag">🚀 Giao miễn phí</span>
+<span class="hd-tag">⏱ 15-20 phút</span>
+<span class="hd-tag">🏭 Tận công ty</span>
+</div>
+</header>
+
+<div class="sp-bar"><span class="sp-dot"></span><span id="spText">142 đơn hôm nay • 8 người đang chọn</span></div>
+
+<!-- Flash Sale Banner (injected by JS) -->
+<div id="flashSaleBanner" style="display:none"></div>
+
+<div class="td" id="timeDeal">
+<div class="td-label" id="tdLabel">⚡ Deal buổi trưa</div>
+<div class="td-title" id="tdTitle">Combo Trưa Tiết Kiệm — Giảm đến 20%</div>
+<div class="td-sub">Giao tận bàn • Pha chế tươi mỗi đơn</div>
+<div class="td-timer" id="tdTimer">⏰ Còn 1:23:45</div>
+</div>
+
+<div class="cta-row">
+<a href="tel:0378148148" class="cta c" style="flex:1"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg> Hotline 0378.148.148</a>
+</div>
+
+<div class="a2hs-modal" id="a2hsModal">
+<div class="a2hs-box">
+  <div class="a2hs-top">
+    <span class="a2hs-phone">📱</span>
+    <div class="a2hs-headline">Thêm Ngon-Ngon<br>vào điện thoại</div>
+    <div class="a2hs-subline">Đặt hàng mỗi ngày chỉ với 1 chạm!</div>
+  </div>
+  <div class="a2hs-benefits">
+    <div class="a2hs-benefit"><div class="a2hs-benefit-ic b1">⚡</div><span>Mở nhanh hơn — không cần gõ địa chỉ web</span></div>
+    <div class="a2hs-benefit"><div class="a2hs-benefit-ic b2">🔄</div><span>Đặt lại đơn cũ chỉ 1 chạm — tiết kiệm thời gian</span></div>
+    <div class="a2hs-benefit"><div class="a2hs-benefit-ic b3">📶</div><span>Xem menu ngay cả khi mạng yếu</span></div>
+    <div class="a2hs-benefit"><div class="a2hs-benefit-ic b4">🎁</div><span>Tích điểm — Đặt 10 đơn tặng 1 ly miễn phí</span></div>
+  </div>
+  <div class="a2hs-actions">
+    <button class="a2hs-install" id="a2hsInstallBtn">📲 Thêm vào điện thoại ngay</button>
+    <button class="a2hs-later" id="a2hsLaterBtn">Để sau — Tôi muốn xem menu trước</button>
+  </div>
+</div>
+</div>
+
+<div class="a2hs" id="a2hsBanner">
+<div class="a2hs-icon">📲</div>
+<div class="a2hs-text">
+<div class="a2hs-title">Thêm Ngon-Ngon vào điện thoại</div>
+<div class="a2hs-sub">Đặt hàng nhanh hơn mỗi ngày — Như app thật!</div>
+</div>
+<button class="a2hs-close" id="a2hsClose">✕</button>
+</div>
+
+<!-- Reorder: handled by Growth module (growth.js → initReorder) -->
+
+<div class="search-w"><span class="search-ic">🔍</span><input type="text" class="search-i" id="searchIn" placeholder="Tìm món... trà sữa, sinh tố, cà phê"></div>
+
+<div class="tabs" id="tabs">
+<div class="tab on" data-c="all">🌟 Tất Cả</div>
+<div class="tab" data-c="hot">🔥 Bán Chạy</div>
+<div class="tab" data-c="combo">💰 Combo</div>
+<div class="tab" data-c="trasua">🧋 Trà Sữa</div>
+<div class="tab" data-c="caphe">☕ Cà Phê</div>
+<div class="tab" data-c="tra">🍵 Trà</div>
+<div class="tab" data-c="lanh">🫧 Soda·Ép</div>
+<div class="tab" data-c="suachua">🥛 Sữa Chua</div>
+<div class="tab" data-c="sinhto">🥤 Sinh Tố·Chè</div>
+<div class="tab" data-c="anvat">🍗 Ăn Vặt</div>
+<div class="tab" data-c="khac">🍮 Khác</div>
+</div>
+
+<div id="mc"></div>
+
+<div class="trust">
+<div class="trust-c"><div class="trust-ic">🚚</div><div class="trust-t">Giao miễn phí</div><div class="trust-st">Trong toàn KCN</div></div>
+<div class="trust-c"><div class="trust-ic">⏱</div><div class="trust-t">15-20 phút</div><div class="trust-st">Pha chế & giao</div></div>
+<div class="trust-c"><div class="trust-ic">💯</div><div class="trust-t">Nguyên liệu tươi</div><div class="trust-st">Pha tại chỗ</div></div>
+<div class="trust-c"><div class="trust-ic">🎁</div><div class="trust-t">Tích điểm</div><div class="trust-st">Đặt 10 tặng 1</div></div>
+</div>
+
+<!-- Loyalty: handled by Growth module (growth.js → initLoyaltyBadge) -->
+
+<div class="share-row">
+<button class="share-btn" onclick="shareMenu()">📤 Gửi menu cho đồng nghiệp</button>
+<button class="share-btn" onclick="copyLink()">🔗 Sao chép link</button>
+</div>
+
+<div class="ft">
+🏪 <b>Ngon-Ngon</b> — Giao hàng miễn phí tận công ty<br>
+Hotline & Zalo: <b>0378.148.148</b> • 🌐 ngon-ngon.com
+</div>
+
+<div class="pd-overlay" id="pdOverlay" onclick="closePD()"></div>
+<div class="pd-sheet" id="pdSheet">
+  <div class="pd-handle"></div>
+  <button class="pd-close" id="pdClose" onclick="closePD()">✕</button>
+  <div class="pd-hero" id="pdHero"><span id="pdEmoji"></span></div>
+  <div class="pd-content" id="pdContent">
+    <div class="pd-name" id="pdName"></div>
+    <div class="pd-desc" id="pdDesc"></div>
+    <div class="pd-price-row">
+      <span class="pd-price" id="pdPrice"></span>
+      <span class="pd-old-price" id="pdOldPrice"></span>
+    </div>
+
+    <div class="pd-section" id="pdSizeSection" style="display:none">
+      <div class="pd-section-hd">
+        <span class="pd-section-title">📐 Chọn cỡ ly</span>
+        <span class="pd-section-req">Bắt buộc</span>
+      </div>
+      <div class="pd-options" id="pdSizes"></div>
+    </div>
+
+    <div class="pd-section" id="pdSweetSection" style="display:none">
+      <div class="pd-section-hd">
+        <span class="pd-section-title">🍬 Độ ngọt</span>
+        <span class="pd-section-opt">Tùy chọn</span>
+      </div>
+      <div class="pd-options" id="pdSweet"></div>
+    </div>
+
+    <div class="pd-section" id="pdIceSection" style="display:none">
+      <div class="pd-section-hd">
+        <span class="pd-section-title">🧊 Lượng đá</span>
+        <span class="pd-section-opt">Tùy chọn</span>
+      </div>
+      <div class="pd-options" id="pdIce"></div>
+    </div>
+
+    <div class="pd-section" id="pdTpSection" style="display:none">
+      <div class="pd-section-hd">
+        <span class="pd-section-title">🧁 Thêm topping</span>
+        <span class="pd-section-opt">Tùy chọn • +5.000/món</span>
+      </div>
+      <div class="pd-toppings" id="pdToppings"></div>
+    </div>
+
+    <div class="pd-section">
+      <div class="pd-section-hd">
+        <span class="pd-section-title">📝 Ghi chú cho món này</span>
+        <span class="pd-section-opt">Tùy chọn</span>
+      </div>
+      <textarea class="pd-note" id="pdNote" placeholder="VD: Ít đường, không đá, thêm sữa..."></textarea>
+    </div>
+
+    <div class="pd-qty-row">
+      <button class="pd-qty-btn" id="pdQtyMinus" onclick="pdChgQty(-1)">−</button>
+      <span class="pd-qty-num" id="pdQtyNum">1</span>
+      <button class="pd-qty-btn" id="pdQtyPlus" onclick="pdChgQty(1)">+</button>
+    </div>
+  </div>
+
+  <div class="pd-footer">
+    <button class="pd-add-btn" id="pdAddBtn" onclick="pdAddToCart()">
+      <span>Thêm vào giỏ hàng</span>
+      <span class="pd-add-price" id="pdAddPrice">—</span>
+    </button>
+  </div>
+</div>
+
+<div class="ck-overlay" id="ckOverlay" onclick="closeCheckout()"></div>
+<div class="ck-sheet" id="ckSheet">
+  <div class="ck-hd">
+    <button class="ck-back" onclick="closeCheckout()">←</button>
+    <span class="ck-hd-title">Giỏ hàng</span>
+    <button class="ck-hd-clr" id="ckClear" onclick="clearCartCk()">Xóa tất cả</button>
+  </div>
+  <div class="ck-content" id="ckContent">
+    <div class="ck-items" id="ckItems"></div>
+
+    <div class="ck-upsell" id="ckUpsell" style="display:none">
+      <div class="ck-upsell-title">👉 Thêm cho đủ bữa?</div>
+      <div class="ck-upsell-scroll" id="ckUpsellItems"></div>
+    </div>
+
+    <div class="ck-info">
+      <div class="ck-info-title">📋 Thông tin giao hàng</div>
+      <div class="ck-field">
+        <div class="ck-label">👤 Tên người nhận <span class="req">*</span></div>
+        <input class="ck-input" id="ckName" placeholder="VD: Anh Minh, Chị Hương...">
+      </div>
+      <div class="ck-field">
+        <div class="ck-label">📱 Số điện thoại <span class="req">*</span></div>
+        <input class="ck-input" id="ckPhone" type="tel" placeholder="VD: 0901234567">
+      </div>
+      <div class="ck-field">
+        <div class="ck-label">📍 Giao đến (tên công ty, cổng, vị trí) <span class="req">*</span></div>
+        <input class="ck-input" id="ckAddr" placeholder="VD: Cty Pouchen - Cổng B">
+      </div>
+      <div class="ck-field">
+        <div class="ck-label">📝 Ghi chú đơn hàng</div>
+        <textarea class="ck-input ck-textarea" id="ckNote" placeholder="VD: Giao lúc 12h trưa, gọi trước khi giao..."></textarea>
+      </div>
+    </div>
+
+    <!-- Delivery Type Selector -->
+    <div class="ck-info">
+      <div class="ck-info-title">🕐 Thời gian giao hàng</div>
+      <div class="ck-delivery-opts" id="ckDeliveryOpts">
+        <div class="ck-del-opt on" data-type="immediate" onclick="selectDelivery('immediate',this)">
+          <div class="ck-del-radio"><div class="ck-del-dot"></div></div>
+          <div class="ck-del-info">
+            <div class="ck-del-title">🚀 Giao liền</div>
+            <div class="ck-del-desc">Nhận hàng trong 15-20 phút</div>
+          </div>
+        </div>
+        <div class="ck-del-opt" data-type="scheduled" onclick="selectDelivery('scheduled',this)">
+          <div class="ck-del-radio"><div class="ck-del-dot"></div></div>
+          <div class="ck-del-info">
+            <div class="ck-del-title">🕐 Hẹn giờ giao</div>
+            <div class="ck-del-desc">Chọn giờ giao phù hợp</div>
+          </div>
+        </div>
+      </div>
+      <div class="ck-sched-row" id="ckSchedRow" style="display:none">
+        <div class="ck-label">⏰ Chọn giờ giao <span class="req">*</span></div>
+        <input class="ck-input" id="ckSchedTime" type="time" min="07:00" max="20:00" value="12:00">
+      </div>
+    </div>
+
+    <div class="ck-summary" id="ckSummary"></div>
+  </div>
+
+  <div class="ck-footer">
+    <button class="ck-order-btn" id="ckOrderBtn" onclick="placeOrder()">
+      <span>Đặt hàng</span>
+      <span class="ck-order-price" id="ckOrderPrice">0đ</span>
+    </button>
+  </div>
+</div>
+
+<div class="os" id="orderSuccess">
+  <div class="os-box">
+    <div class="os-hd">
+      <span class="os-check">✅</span>
+      <div class="os-hd-title">Đặt hàng thành công!</div>
+      <div class="os-hd-sub">Đơn hàng đã được gửi đến bếp</div>
+    </div>
+    <div class="os-info">
+      <div class="os-row"><span class="os-icon">🆔</span><span>Mã đơn: <b id="osOrderId">—</b></span></div>
+      <div class="os-row" id="osEstRow"><span class="os-icon">⏱</span><span>Dự kiến: <b id="osEstTime">15-20 phút</b></span></div>
+      <div class="os-row" id="osSchedRow" style="display:none"><span class="os-icon">🕐</span><span>Hẹn giao lúc: <b id="osSchedTime">—</b></span></div>
+    </div>
+    <div class="os-progress">
+      <div class="os-step active"><div class="os-step-dot">✓</div><div class="os-step-label">Đã nhận</div></div>
+      <div class="os-step-line"></div>
+      <div class="os-step"><div class="os-step-dot">2</div><div class="os-step-label">Pha chế</div></div>
+      <div class="os-step-line"></div>
+      <div class="os-step"><div class="os-step-dot">3</div><div class="os-step-label">Đang giao</div></div>
+      <div class="os-step-line"></div>
+      <div class="os-step"><div class="os-step-dot">4</div><div class="os-step-label">Hoàn tất</div></div>
+    </div>
+    <div class="os-actions">
+      <button class="os-done-btn" onclick="closeOrderSuccess()">👍 Đã hiểu — Quay lại menu</button>
+      <a href="tel:0378148148" class="os-call-btn">📞 Gọi quán: 0378.148.148</a>
+    </div>
+  </div>
+</div>
+
+<div class="cart" id="cartBar">
+<div class="cart-in">
+<div class="cart-l">
+<div class="cart-lbl">🛒 <b id="cartCnt">0</b> món</div>
+<span class="cart-tot" id="cartTot">0đ</span>
+</div>
+<button class="cart-view-btn" onclick="openCheckout()">Xem giỏ hàng →</button>
+</div>
+</div>
+
+<div class="toast" id="toast"><span class="toast-em" id="toastEm">🧋</span><span id="toastMsg"></span></div>
+<button class="s-top" id="sTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+
+<!-- Growth Features CSS -->
+<link rel="stylesheet" href="/css/growth.css">
+
+<!-- ES Module entry point — ALL JavaScript lives in src/ now -->
+<script type="module" src="/src/customer/main.js"></script>
+</body>
+</html>

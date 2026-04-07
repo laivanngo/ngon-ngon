@@ -1,0 +1,60 @@
+# =============================================================================
+# GitHub Actions — QC + Auto-deploy
+# =============================================================================
+# Quy trình:
+#   1. Push code lên GitHub
+#   2. GitHub Actions chạy preflight.sh (QC)
+#   3. Nếu PASS → SSH vào VPS và deploy
+#   4. Nếu FAIL → CHẶN deploy + báo lỗi
+#
+# Secrets cần thêm (Settings → Secrets → Actions):
+#   VPS_HOST:     180.93.1.117
+#   VPS_USER:     deploy
+#   VPS_SSH_KEY:  (private key SSH)
+#   VPS_SSH_PORT: 2222
+# =============================================================================
+
+name: QC & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─── TRẠM QC: Kiểm tra trước khi deploy ───
+  quality-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML for validation
+        run: pip install pyyaml
+
+      - name: "🏭 Run Preflight QC (Kiểm tra xuất xưởng)"
+        run: bash preflight.sh --quick
+
+  # ─── DEPLOY: Chỉ chạy nếu QC pass + push vào main ───
+  deploy:
+    needs: quality-check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: "🚀 Deploy to VPS"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          script_stop: true
+          command_timeout: 10m
+          script: |
+            cd /opt/ngonngon
+            bash scripts/deploy.sh

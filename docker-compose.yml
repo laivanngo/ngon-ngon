@@ -1,0 +1,120 @@
+# =============================================================================
+# Ngon-Ngon Production Docker Compose — Tối ưu cho VPS 1GB RAM
+# =============================================================================
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ngonngon}
+      POSTGRES_USER: ${DB_USER:-ngonngon}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c shared_buffers=48MB
+      -c effective_cache_size=128MB
+      -c work_mem=2MB
+      -c maintenance_work_mem=32MB
+      -c max_connections=30
+      -c wal_buffers=2MB
+      -c checkpoint_completion_target=0.7
+      -c random_page_cost=1.1
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-ngonngon}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+    mem_limit: 150m
+    cpus: 0.4
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-ngonngon}:${DB_PASSWORD}@db:5432/${DB_NAME:-ngonngon}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://ngon-ngon.com}
+      ENV: ${ENV:-production}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
+      KDS_PIN: ${KDS_PIN:?KDS_PIN is required}
+      UVICORN_WORKERS: 1
+      TZ: Asia/Ho_Chi_Minh
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    volumes:
+      - ./frontend/images:/app/static/images:ro
+    networks:
+      - internal
+    mem_limit: 300m
+    cpus: 0.8
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      api:
+        condition: service_healthy
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - certbot-conf:/etc/letsencrypt:ro
+      - certbot-www:/var/www/certbot:ro
+    networks:
+      - internal
+    mem_limit: 64m
+    cpus: 0.2
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h; done'"
+    profiles:
+      - ssl
+
+volumes:
+  pgdata:
+    name: ngonngon_pgdata
+  certbot-conf:
+  certbot-www:
+
+networks:
+  internal:
+    driver: bridge

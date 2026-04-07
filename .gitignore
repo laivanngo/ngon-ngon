@@ -1,0 +1,53 @@
+# === Secrets ===
+.env
+.env.production
+*.pem
+*.key
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.venv/
+venv/
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# === Docker ===
+docker-compose.override.yml
+
+# === Logs ===
+logs/
+*.log
+
+# === Database dumps ===
+backups/
+*.sql
+*.dump
+
+# === SSL certs ===
+certbot/
+
+# === Node ===
+node_modules/
+
+# === Pytest cache ===
+.pytest_cache/
+
+# === OpenClaw===
+workspace/
+
+# === Tài liệu nội bộ (không đưa lên GitHub) ===
+PROMPT_TEMPLATES.md
+
+# === Claude Code (local config, machine-specific) ===
+.claude/
+
+# === Windows metadata ===
+desktop.ini

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1A1A2E">
+<title>KDS — Ngon-Ngon Bếp</title>
+<style>
+/*
+ * KDS — Kitchen Display System
+ * ============================
+ * DESIGN PRINCIPLES (tối ưu cho bếp):
+ * 1. Dark theme: dễ đọc dưới đèn bếp, tiết kiệm pin OLED
+ * 2. Chữ TO: đọc được cách 1 cánh tay (50-70cm)
+ * 3. Nút TO: tay ướt/bẩn bấm được, touch target ≥ 48px
+ * 4. Thông tin ĐẦY ĐỦ: nhân viên không cần hỏi thêm ai
+ * 5. Timer đếm ngược: biết đơn nào lâu, ưu tiên làm trước
+ * 6. Màu sắc rõ ràng: xanh/cam/đỏ = nhanh/chú ý/khẩn cấp
+ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1A1A2E;--card:#16213E;--card-border:#0F3460;
+  --text:#E8E8E8;--text2:#9E9EAE;--text-muted:#6B6B7E;
+  --brand:#E94560;--brand-lt:rgba(233,69,96,.15);
+  --green:#2ECC71;--green-bg:rgba(46,204,113,.12);
+  --yellow:#F39C12;--yellow-bg:rgba(243,156,18,.12);
+  --blue:#3498DB;--blue-bg:rgba(52,152,219,.12);
+  --red:#E74C3C;--red-bg:rgba(231,76,60,.12);
+  --purple:#9B59B6;--purple-bg:rgba(155,89,182,.12);
+  --r:12px;
+}
+html{font-size:16px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.4;min-height:100vh;min-height:100dvh;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+
+/* --- PIN Login --- */
+.pin-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;padding:20px;gap:20px}
+.pin-logo{font-size:48px}
+.pin-title{font-size:20px;font-weight:800;color:var(--brand)}
+.pin-sub{font-size:13px;color:var(--text2);text-align:center}
+.pin-dots{display:flex;gap:12px;margin:16px 0}
+.pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--text2);transition:all .15s}
+.pin-dot.filled{background:var(--brand);border-color:var(--brand)}
+.pin-dot.wrong{border-color:var(--red);background:var(--red);animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pin-pad{display:grid;grid-template-columns:repeat(3,72px);gap:10px;margin-top:8px}
+.pin-key{width:72px;height:56px;border-radius:12px;border:none;background:var(--card);color:var(--text);font-size:24px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .1s;-webkit-tap-highlight-color:transparent}
+.pin-key:active{background:var(--card-border)}
+.pin-key.fn{font-size:16px;color:var(--text2)}
+.pin-error{color:var(--red);font-size:13px;min-height:20px;text-align:center}
+
+/* --- KDS Layout --- */
+.kds{display:none}
+.kds.show{display:flex;flex-direction:column;height:100vh;height:100dvh}
+
+/* Top bar */
+.kds-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--card-border);flex-shrink:0}
+.kds-brand{font-size:14px;font-weight:800;color:var(--brand)}
+.kds-controls{display:flex;align-items:center;gap:8px}
+.kds-ws{width:8px;height:8px;border-radius:50%;background:#666;flex-shrink:0}
+.kds-ws.on{background:var(--green);box-shadow:0 0 6px rgba(46,204,113,.5)}
+.kds-ws.reconnecting{background:var(--yellow);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.kds-sound{background:none;border:none;font-size:18px;cursor:pointer;padding:4px}
+.kds-sound.off{opacity:.4}
+.kds-lock{background:none;border:1px solid var(--card-border);border-radius:6px;color:var(--text2);font-size:11px;padding:4px 8px;cursor:pointer}
+
+/* Tabs */
+.kds-tabs{display:flex;gap:0;background:var(--card);border-bottom:1px solid var(--card-border);flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.kds-tab{flex:1;min-width:0;padding:10px 4px;text-align:center;font-size:12px;font-weight:700;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;position:relative;white-space:nowrap;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.kds-tab.on{color:var(--text);border-bottom-color:var(--brand)}
+.kds-badge{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;font-size:10px;font-weight:800;text-align:center;margin-left:3px;padding:0 5px}
+.kds-tab[data-s="pending"] .kds-badge{background:var(--yellow);color:#000}
+.kds-tab[data-s="preparing"] .kds-badge{background:var(--purple);color:#fff}
+.kds-tab[data-s="delivering"] .kds-badge{background:var(--blue);color:#fff}
+.kds-tab[data-s="done"] .kds-badge{background:var(--green);color:#000}
+
+/* Order cards container */
+.kds-orders{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
+
+/* Order card */
+.kds-card{background:var(--card);border-radius:var(--r);border-left:5px solid var(--card-border);overflow:hidden}
+.kds-card[data-s="pending"]{border-left-color:var(--yellow)}
+.kds-card[data-s="confirmed"]{border-left-color:var(--blue)}
+.kds-card[data-s="preparing"]{border-left-color:var(--purple)}
+.kds-card[data-s="delivering"]{border-left-color:var(--blue)}
+.kds-card[data-s="done"]{border-left-color:var(--green);opacity:.7}
+.kds-card[data-s="cancelled"]{border-left-color:var(--red);opacity:.5}
+
+/* Card header */
+.kds-card-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;gap:8px}
+.kds-order-id{font-size:15px;font-weight:800}
+.kds-timer{font-size:13px;font-weight:700;padding:3px 8px;border-radius:6px;font-variant-numeric:tabular-nums}
+.kds-timer.green{background:var(--green-bg);color:var(--green)}
+.kds-timer.yellow{background:var(--yellow-bg);color:var(--yellow)}
+.kds-timer.red{background:var(--red-bg);color:var(--red)}
+
+/* Items */
+.kds-items{padding:0 12px}
+.kds-item{padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.kds-item:last-child{border-bottom:none}
+.kds-item-main{display:flex;justify-content:space-between;align-items:baseline;font-size:16px;font-weight:700}
+.kds-item-qty{color:var(--brand);min-width:28px}
+.kds-item-name{flex:1}
+.kds-item-price{color:var(--text2);font-size:13px;font-weight:600}
+.kds-item-details{font-size:13px;color:var(--text2);padding-left:28px;margin-top:2px}
+
+/* Customer info */
+.kds-customer{padding:10px 12px;background:rgba(255,255,255,.03);font-size:13px;color:var(--text2);line-height:1.6;border-top:1px solid rgba(255,255,255,.05)}
+.kds-customer strong{color:var(--text);font-size:15px}
+.kds-cust-row{padding:2px 0}
+.kds-note{margin-top:6px;padding:6px 10px;background:var(--yellow-bg);border-radius:6px;color:var(--yellow);font-weight:600;font-size:13px}
+
+/* Delivery badge */
+.kds-del-badge{padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap}
+.kds-del-badge.immediate{background:var(--green-bg);color:var(--green)}
+.kds-del-badge.scheduled{background:var(--yellow-bg);color:var(--yellow);animation:pulse 2s infinite}
+
+/* Scheduled delivery alert */
+.kds-sched-alert{margin-top:6px;padding:8px 10px;background:var(--yellow-bg);border:1.5px solid rgba(243,156,18,.3);border-radius:8px;color:var(--yellow);font-weight:800;font-size:15px;text-align:center;letter-spacing:.5px;animation:pulse 2s infinite}
+
+/* Total */
+.kds-total{padding:8px 12px;font-size:18px;font-weight:800;text-align:right;color:var(--brand)}
+
+/* Action buttons */
+.kds-actions{display:flex;gap:6px;padding:10px 12px;border-top:1px solid rgba(255,255,255,.05)}
+.kds-btn{flex:1;padding:14px 8px;border-radius:10px;border:none;font-size:14px;font-weight:800;cursor:pointer;color:#fff;font-family:inherit;min-height:48px;-webkit-tap-highlight-color:transparent;transition:opacity .1s}
+.kds-btn:active{opacity:.7}
+.kds-btn.prepare{background:#7B1FA2}
+.kds-btn.deliver{background:#00838F}
+.kds-btn.done-btn{background:var(--green)}
+.kds-btn.cancel-btn{background:var(--red);flex:.4;font-size:12px}
+
+/* Empty state */
+.kds-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);gap:8px;padding:40px}
+.kds-empty-icon{font-size:48px}
+.kds-empty-text{font-size:14px}
+
+/* New order flash */
+.kds-card.flash{animation:flashIn .6s ease-out}
+@keyframes flashIn{0%{background:rgba(233,69,96,.3);transform:scale(1.02)}100%{background:var(--card);transform:scale(1)}}
+</style>
+</head>
+<body>
+
+<!-- ===================== PIN LOGIN ===================== -->
+<div class="pin-screen" id="pinScreen">
+  <div class="pin-logo">🍳</div>
+  <div class="pin-title">KDS — Bếp Ngon-Ngon</div>
+  <div class="pin-sub">Nhập PIN để vào hệ thống bếp</div>
+  <div class="pin-dots" id="pinDots">
+    <div class="pin-dot"></div><div class="pin-dot"></div>
+    <div class="pin-dot"></div><div class="pin-dot"></div>
+  </div>
+  <div class="pin-error" id="pinError"></div>
+  <div class="pin-pad" id="pinPad">
+    <button class="pin-key" onclick="pinKey('1')">1</button>
+    <button class="pin-key" onclick="pinKey('2')">2</button>
+    <button class="pin-key" onclick="pinKey('3')">3</button>
+    <button class="pin-key" onclick="pinKey('4')">4</button>
+    <button class="pin-key" onclick="pinKey('5')">5</button>
+    <button class="pin-key" onclick="pinKey('6')">6</button>
+    <button class="pin-key" onclick="pinKey('7')">7</button>
+    <button class="pin-key" onclick="pinKey('8')">8</button>
+    <button class="pin-key" onclick="pinKey('9')">9</button>
+    <button class="pin-key fn" onclick="pinClear()">Xóa</button>
+    <button class="pin-key" onclick="pinKey('0')">0</button>
+    <button class="pin-key fn" onclick="pinBackspace()">⌫</button>
+  </div>
+</div>
+
+<!-- ===================== KDS MAIN ===================== -->
+<div class="kds" id="kdsApp">
+  <div class="kds-bar">
+    <div class="kds-brand">🍳 Bếp Ngon-Ngon</div>
+    <div class="kds-controls">
+      <div class="kds-ws" id="wsDot" title="WebSocket"></div>
+      <button class="kds-sound" id="soundBtn" onclick="toggleSound()" title="Âm thanh">🔔</button>
+      <button class="kds-lock" onclick="lockKDS()">🔒 Khóa</button>
+    </div>
+  </div>
+
+  <div class="kds-tabs" id="kdsTabs">
+    <button class="kds-tab on" data-s="pending" onclick="switchTab('pending')">MỚI <span class="kds-badge" id="badge-pending">0</span></button>
+    <button class="kds-tab" data-s="preparing" onclick="switchTab('preparing')">PHA CHẾ <span class="kds-badge" id="badge-preparing">0</span></button>
+    <button class="kds-tab" data-s="delivering" onclick="switchTab('delivering')">GIAO <span class="kds-badge" id="badge-delivering">0</span></button>
+    <button class="kds-tab" data-s="done" onclick="switchTab('done')">XONG <span class="kds-badge" id="badge-done">0</span></button>
+  </div>
+
+  <div class="kds-orders" id="orderContainer"></div>
+</div>
+
+<!-- Notification sound (reuse same file) -->
+<audio id="notifSound" preload="auto" src="/sounds/new-order.wav"></audio>
+
+
+<script type="module" src="/src/kds/main.js"></script>
+</body>
+</html>

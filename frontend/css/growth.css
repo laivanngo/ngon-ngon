@@ -1,0 +1,128 @@
+/*
+ * Growth Features CSS
+ * ====================
+ * Styles cho 9 tính năng tăng doanh thu.
+ * Load sau CSS gốc, chỉ thêm mới, không ghi đè.
+ */
+
+/* --- Common hint style --- */
+.growth-hint{
+  background:linear-gradient(135deg,#FFF8E1,#FFECB3);
+  border-radius:8px;padding:8px 12px;margin:6px 0;
+  font-size:13px;color:#E65100;
+  display:flex;align-items:center;gap:4px;
+  animation:growthFadeIn .3s ease-out;
+}
+@keyframes growthFadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+/* --- ② Reorder banner --- */
+.growth-reorder{
+  background:linear-gradient(135deg,#E8430A 0%,#C23508 100%);
+  border-radius:12px;margin:12px 16px;padding:0;overflow:hidden;
+  animation:growthSlideDown .4s ease-out;
+}
+@keyframes growthSlideDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+.growth-reorder-content{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+}
+.growth-reorder-text{
+  flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;
+}
+.growth-reorder-label{
+  font-size:11px;color:rgba(255,255,255,.8);font-weight:700;
+}
+.growth-reorder-items{
+  font-size:13px;color:#fff;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.growth-reorder-btn{
+  background:#fff;color:#E8430A;
+  border:none;border-radius:8px;padding:10px 16px;
+  font-size:13px;font-weight:800;cursor:pointer;
+  white-space:nowrap;font-family:inherit;
+  flex-shrink:0;
+}
+.growth-reorder-btn:active{opacity:.8}
+.growth-reorder-close{
+  background:none;border:none;color:rgba(255,255,255,.6);
+  font-size:16px;cursor:pointer;padding:4px;flex-shrink:0;
+}
+
+/* --- ③ Cross-sell --- */
+.growth-crosssell{
+  border-top:1px dashed #E9ECEF;margin:12px 0 8px;padding-top:12px;
+}
+.growth-crosssell-title{
+  font-size:13px;font-weight:700;color:#6B6B6B;margin-bottom:8px;
+}
+.growth-crosssell-items{
+  display:flex;flex-direction:column;gap:6px;
+}
+.growth-crosssell-item{
+  display:flex;justify-content:space-between;align-items:center;
+  background:#F8F9FA;border:1.5px solid #E9ECEF;border-radius:8px;
+  padding:10px 12px;cursor:pointer;font-size:13px;font-family:inherit;
+  transition:all .15s;
+}
+.growth-crosssell-item:active{background:#EEEFF1}
+.growth-crosssell-price{
+  font-weight:700;color:#E8430A;
+}
+
+/* --- ⑤ Loyalty badge --- */
+.growth-loyalty{
+  background:#F0F7FF;border:1.5px solid #BBDEFB;
+  border-radius:10px;margin:12px 16px;padding:10px 14px;
+  font-size:13px;color:#1565C0;font-weight:600;text-align:center;
+  animation:growthFadeIn .4s ease-out;
+}
+.growth-loyalty-reward{
+  background:#E8F5E9;border-color:#A5D6A7;color:#2E7D32;
+  font-size:14px;
+}
+
+/* --- ⑦ Review popup --- */
+.growth-review-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;
+  z-index:10000;padding:20px;
+  animation:growthFadeIn .2s;
+}
+.growth-review-box{
+  background:#fff;border-radius:16px;padding:24px 20px;
+  width:100%;max-width:340px;
+}
+.growth-review-title{
+  font-size:17px;font-weight:800;text-align:center;margin-bottom:16px;
+}
+.growth-review-stars{
+  display:flex;justify-content:center;gap:8px;margin-bottom:8px;
+}
+.growth-star{
+  background:none;border:none;font-size:32px;cursor:pointer;
+  padding:4px;transition:all .15s;opacity:.3;
+}
+.growth-star:active{transform:scale(1.3)!important}
+.growth-review-selected{
+  text-align:center;font-size:14px;color:#666;min-height:22px;margin-bottom:12px;
+}
+.growth-review-comment{
+  width:100%;padding:10px 12px;border:2px solid #E9ECEF;border-radius:8px;
+  font-size:13px;font-family:inherit;resize:none;outline:none;
+}
+.growth-review-comment:focus{border-color:#E8430A}
+.growth-review-actions{
+  display:flex;gap:8px;margin-top:12px;
+}
+.growth-review-skip{
+  flex:1;padding:12px;border:2px solid #E9ECEF;border-radius:8px;
+  background:#fff;color:#6B6B6B;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+}
+.growth-review-submit{
+  flex:1;padding:12px;border:none;border-radius:8px;
+  background:#E8430A;color:#fff;font-size:13px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+}
+.growth-review-submit:disabled{opacity:.4;cursor:default}
+.growth-review-submit:active:not(:disabled){opacity:.8}

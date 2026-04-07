@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ngon-Ngon Admin</title>
+<style>
+/*
+ * Admin Panel — Functional, utilitarian design.
+ * CSS stays inline in admin.html for simplicity (admin page ít traffic).
+ * JS đã tách sang src/admin/ (14 ES modules).
+ * Match brand colors từ frontend chính.
+ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#E8430A;--brand-dk:#C23508;--brand-lt:#FFF0EB;
+  --green:#2E9E5A;--green-lt:#E6F7ED;
+  --bg:#F8F9FA;--card:#FFF;--text:#1A1A1A;--text2:#6B6B6B;--hint:#9E9E9E;
+  --bdr:#E9ECEF;--r:10px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+
+/* --- Login --- */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:var(--card);border-radius:16px;padding:40px 32px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.login-logo{font-size:28px;font-weight:800;text-align:center;color:var(--brand);margin-bottom:4px}
+.login-sub{text-align:center;color:var(--text2);font-size:13px;margin-bottom:24px}
+.form-field{margin-bottom:16px}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px;display:block}
+.form-input{width:100%;padding:12px 14px;border:2px solid var(--bdr);border-radius:var(--r);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--brand)}
+.btn{width:100%;padding:14px;border-radius:var(--r);border:none;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.btn:active{opacity:.8}
+.btn-brand{background:var(--brand);color:#fff}
+.btn-outline{background:#fff;color:var(--brand);border:2px solid var(--brand)}
+.error-msg{color:#D32F2F;font-size:12px;text-align:center;margin-top:8px;min-height:18px}
+
+/* --- Layout --- */
+.app{display:none}
+.app.show{display:block}
+.topbar{background:var(--card);border-bottom:1px solid var(--bdr);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:18px;font-weight:800;color:var(--brand);display:flex;align-items:center;gap:6px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-user{font-size:12px;color:var(--text2)}
+.btn-sm{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit}
+.btn-sm:active{opacity:.8}
+
+/* --- Tabs --- */
+.nav-tabs{display:flex;gap:4px;padding:12px 20px;background:var(--card);border-bottom:1px solid var(--bdr)}
+.nav-tab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);border:none;background:none;font-family:inherit;transition:all .15s}
+.nav-tab.on{background:var(--brand);color:#fff}
+.nav-tab:hover:not(.on){background:var(--brand-lt)}
+
+/* --- Dashboard --- */
+.dashboard{padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.stat-card{background:var(--card);border-radius:var(--r);padding:20px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.stat-num{font-size:32px;font-weight:800;color:var(--brand)}
+.stat-label{font-size:12px;color:var(--text2);margin-top:4px}
+
+/* --- Orders --- */
+.orders-header{padding:16px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-btn{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--bdr);background:var(--card);color:var(--text2);font-family:inherit}
+.filter-btn.on{border-color:var(--brand);background:var(--brand-lt);color:var(--brand)}
+.order-list{padding:0 20px 100px}
+.order-card{background:var(--card);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.order-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.order-head:hover{background:#FAFAFA}
+.order-id{font-weight:700;font-size:13px}
+.order-meta{font-size:11px;color:var(--text2)}
+.order-status{padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase}
+.status-pending{background:#FFF3E0;color:#E65100}
+.status-confirmed{background:#E3F2FD;color:#1565C0}
+.status-preparing{background:#F3E5F5;color:#7B1FA2}
+.status-delivering{background:#E0F7FA;color:#00838F}
+.status-done{background:var(--green-lt);color:var(--green)}
+.status-cancelled{background:#FFEBEE;color:#C62828}
+.order-body{padding:0 16px 14px;display:none;border-top:1px solid var(--bdr)}
+.order-body.show{display:block;padding-top:12px}
+.order-items{font-size:13px;margin-bottom:10px}
+.order-item-row{padding:4px 0;display:flex;justify-content:space-between}
+.order-customer{font-size:12px;color:var(--text2);line-height:1.6}
+.order-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.action-btn{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;color:#fff}
+.action-btn:active{opacity:.8}
+.action-btn.confirm{background:#1565C0}
+.action-btn.prepare{background:#7B1FA2}
+.action-btn.deliver{background:#00838F}
+.action-btn.done{background:var(--green)}
+.action-btn.cancel{background:#C62828}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--hint)}
+.empty-state .icon{font-size:48px;margin-bottom:8px}
+
+/* --- Loading --- */
+.loading{text-align:center;padding:40px;color:var(--hint);font-size:13px}
+.spinner{display:inline-block;width:20px;height:20px;border:3px solid var(--bdr);border-top-color:var(--brand);border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* --- WebSocket Status Indicator --- */
+.ws-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--hint);padding:4px 10px;border-radius:6px;background:var(--bg)}
+.ws-dot{width:8px;height:8px;border-radius:50%;background:#9E9E9E;transition:background .3s}
+.ws-dot.on{background:#4CAF50;box-shadow:0 0 6px rgba(76,175,80,.5)}
+.ws-dot.reconnecting{background:#FF9800;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* --- Sound Toggle --- */
+.sound-toggle{background:none;border:1.5px solid var(--bdr);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:14px;line-height:1;transition:border-color .2s}
+.sound-toggle:hover{border-color:var(--brand)}
+.sound-toggle.off{opacity:.5}
+
+/* --- Toast Notification --- */
+.toast-container{position:fixed;top:60px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{pointer-events:auto;background:var(--card);border-radius:12px;padding:14px 18px;box-shadow:0 8px 32px rgba(0,0,0,.15);border-left:4px solid var(--brand);max-width:340px;animation:slideIn .3s ease-out;display:flex;flex-direction:column;gap:4px;cursor:pointer;transition:opacity .3s}
+.toast:hover{opacity:.85}
+.toast.hide{animation:slideOut .3s ease-in forwards}
+.toast-title{font-size:14px;font-weight:700;color:var(--text)}
+.toast-body{font-size:12px;color:var(--text2);line-height:1.4}
+.toast-time{font-size:10px;color:var(--hint);margin-top:2px}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
+
+/* --- Feature Flag Toggle Switch --- */
+.flag-card{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--card);border-radius:var(--r);margin-bottom:8px}
+.flag-info{flex:1;min-width:0}
+.flag-name{font-size:13px;font-weight:700}
+.flag-desc{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* --- Growth Settings --- */
+.setting-card{padding:14px 16px;background:var(--card);border-radius:var(--r);margin-bottom:8px}
+.setting-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.setting-label{font-size:13px;font-weight:700}
+.setting-desc{font-size:11px;color:var(--text2);margin-bottom:10px}
+.setting-input-row{display:flex;align-items:center;gap:8px}
+.setting-input{width:80px;padding:6px 10px;border:1.5px solid var(--bdr);border-radius:6px;font-size:14px;font-weight:600;text-align:center;background:var(--bg)}
+.setting-input:focus{border-color:var(--brand);outline:none}
+.setting-unit{font-size:12px;color:var(--text2)}
+.setting-range{font-size:10px;color:var(--text2)}
+.setting-save{padding:5px 14px;border:none;border-radius:6px;background:var(--brand);color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.setting-save:disabled{opacity:.5;cursor:default}
+.section-title{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;padding:16px 0 8px;margin-top:8px}
+.toggle{position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;margin-left:12px}
+.toggle input{opacity:0;width:0;height:0}
+.toggle .slider{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:13px;transition:.3s}
+.toggle input:checked+.slider{background:var(--green)}
+.toggle .slider::before{content:'';position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle input:checked+.slider::before{transform:translateX(20px)}
+
+/* ======================================================
+   PRODUCTS TAB — Professional Admin Panel
+   ====================================================== */
+
+/* --- Sub-tabs (Products / Categories / Toppings) --- */
+.sub-tabs{display:flex;gap:2px;padding:0 20px;margin-top:12px}
+.sub-tab{padding:10px 18px;border-radius:8px 8px 0 0;font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);border:1.5px solid var(--bdr);border-bottom:none;background:var(--bg);font-family:inherit;transition:all .15s}
+.sub-tab.on{background:var(--card);color:var(--brand);border-color:var(--bdr);position:relative}
+.sub-tab.on::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--card)}
+.sub-panel{display:none;background:var(--card);border:1.5px solid var(--bdr);border-radius:0 var(--r) var(--r) var(--r);margin:0 20px 20px}
+.sub-panel.on{display:block}
+
+/* --- Product Toolbar --- */
+.prod-toolbar{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--bdr)}
+.prod-search{padding:8px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;outline:none;width:220px;transition:border-color .2s}
+.prod-search:focus{border-color:var(--brand)}
+.btn-add{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:var(--brand);color:#fff;font-family:inherit;transition:all .15s}
+.btn-add:hover{background:var(--brand-dk)}
+.btn-add:active{transform:scale(.97)}
+
+/* --- Category Section Header --- */
+.cat-section{margin:0}
+.cat-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--bdr);cursor:grab;user-select:none}
+.cat-header:active{cursor:grabbing}
+.cat-header.dragging{opacity:.5;background:var(--brand-lt)}
+.cat-info{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.cat-emoji{font-size:18px}
+.cat-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600}
+.cat-badge.active{background:var(--green-lt);color:var(--green)}
+.cat-badge.hidden{background:#FFEBEE;color:#C62828}
+.cat-count{font-size:11px;color:var(--text2)}
+.cat-actions{display:flex;align-items:center;gap:4px}
+.cat-btn{width:32px;height:32px;border-radius:6px;border:1.5px solid var(--bdr);background:var(--card);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cat-btn:hover{border-color:var(--brand);background:var(--brand-lt)}
+.drag-handle{cursor:grab;color:var(--hint);font-size:16px;padding:0 4px;line-height:1}
+
+/* --- Product Card (Row) --- */
+.prod-list{padding:0}
+.prod-card{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--bdr);transition:background .1s;gap:10px}
+.prod-card:last-child{border-bottom:none}
+.prod-card:hover{background:#FAFAFA}
+.prod-card.inactive{opacity:.55}
+.prod-card.dragging{opacity:.4;background:var(--brand-lt)}
+.prod-drag{cursor:grab;color:var(--hint);font-size:14px;flex-shrink:0;padding:4px;line-height:1}
+.prod-drag:active{cursor:grabbing}
+.prod-emoji{font-size:22px;flex-shrink:0;width:32px;text-align:center}
+.prod-info{flex:1;min-width:0}
+.prod-name{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+.prod-name .badge-tag{font-size:9px;padding:1px 6px;border-radius:3px;font-weight:700;text-transform:uppercase}
+.badge-hot{background:#FFF3E0;color:#E65100}
+.badge-best{background:var(--brand-lt);color:var(--brand)}
+.badge-new{background:#E8F5E9;color:#2E7D32}
+.prod-meta{font-size:11px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-price{font-size:13px;font-weight:700;color:var(--brand);flex-shrink:0;min-width:55px;text-align:right}
+.prod-toggle{flex-shrink:0}
+.prod-edit-btn{width:32px;height:32px;border-radius:6px;border:1.5px solid var(--bdr);background:var(--card);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.prod-edit-btn:hover{border-color:var(--brand);background:var(--brand-lt)}
+
+/* --- Empty state in category --- */
+.cat-empty{padding:24px 16px;text-align:center;color:var(--hint);font-size:12px}
+
+/* ======================================================
+   MODAL — Universal Product/Category/Topping Editor
+   ====================================================== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.show{opacity:1;pointer-events:auto}
+.modal{background:var(--card);border-radius:16px;width:100%;max-width:560px;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(20px) scale(.97);transition:transform .25s cubic-bezier(.16,1,.3,1);overflow:hidden}
+.modal-overlay.show .modal{transform:translateY(0) scale(1)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--bdr)}
+.modal-title{font-size:16px;font-weight:800}
+.modal-close{width:34px;height:34px;border-radius:8px;border:none;background:var(--bg);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.modal-close:hover{background:var(--bdr)}
+.modal-body{padding:20px;max-height:calc(100vh - 200px);overflow-y:auto}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--bdr);display:flex;gap:8px;justify-content:flex-end}
+.modal-footer .btn{width:auto;padding:10px 24px;font-size:13px}
+
+/* --- Form fields inside modal --- */
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.field-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.field-label .req{color:var(--brand)}
+.field-input{width:100%;padding:10px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff}
+.field-input:focus{border-color:var(--brand)}
+.field-input.error{border-color:#D32F2F}
+.field-hint{font-size:11px;color:var(--hint);margin-top:3px}
+.field-error{font-size:11px;color:#D32F2F;margin-top:3px;display:none}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+select.field-input{appearance:auto;cursor:pointer}
+textarea.field-input{resize:vertical;min-height:60px}
+
+/* --- Image preview --- */
+.img-preview{margin-top:8px;position:relative;width:100%;max-width:200px;aspect-ratio:1;border-radius:var(--r);overflow:hidden;background:var(--bg);border:1.5px dashed var(--bdr);display:flex;align-items:center;justify-content:center}
+.img-preview img{width:100%;height:100%;object-fit:cover}
+.img-preview .placeholder{font-size:32px;color:var(--hint)}
+
+/* --- Sizes inline editor --- */
+.sizes-editor{margin-top:8px}
+.size-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.size-row input{flex:1;padding:8px 10px;border:1.5px solid var(--bdr);border-radius:6px;font-size:12px;font-family:inherit;outline:none}
+.size-row input:focus{border-color:var(--brand)}
+.size-row .size-label{max-width:80px}
+.size-row .size-price{max-width:100px}
+.size-remove{width:28px;height:28px;border-radius:6px;border:none;background:#FFEBEE;color:#C62828;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.size-remove:hover{background:#FFCDD2}
+.size-add-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:6px;border:1.5px dashed var(--brand);background:var(--brand-lt);color:var(--brand);cursor:pointer;font-size:11px;font-weight:600;font-family:inherit;transition:all .15s}
+.size-add-btn:hover{background:var(--brand);color:#fff}
+
+/* --- Checkbox row --- */
+.check-row{display:flex;align-items:center;gap:8px;padding:8px 0}
+.check-row label{font-size:13px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px}
+.check-row input[type="checkbox"]{width:18px;height:18px;accent-color:var(--brand);cursor:pointer}
+
+/* --- Topping card --- */
+.topping-card{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--bdr);gap:10px}
+.topping-card:last-child{border-bottom:none}
+.topping-card:hover{background:#FAFAFA}
+.topping-card.inactive{opacity:.55}
+.topping-emoji{font-size:20px;flex-shrink:0;width:30px;text-align:center}
+.topping-info{flex:1;min-width:0}
+.topping-name{font-size:13px;font-weight:600}
+.topping-price{font-size:12px;color:var(--text2)}
+</style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- LOGIN SCREEN                                 -->
+<!-- ============================================ -->
+<div class="login-wrap" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🧋 Ngon-Ngon</div>
+    <div class="login-sub">Quản lý đơn hàng & menu</div>
+    <div class="form-field">
+      <label class="form-label">Tên đăng nhập</label>
+      <input class="form-input" id="loginUser" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Mật khẩu</label>
+      <input class="form-input" id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-brand" onclick="doLogin()">Đăng nhập</button>
+    <div class="error-msg" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ADMIN APP (hidden until login)               -->
+<!-- ============================================ -->
+<div class="app" id="adminApp">
+  <div class="topbar">
+    <div class="topbar-title">🧋 Ngon-Ngon Admin</div>
+    <div class="topbar-right">
+      <span class="ws-status" id="wsStatus" title="WebSocket connection">
+        <span class="ws-dot" id="wsDot"></span>
+        <span id="wsLabel">Đang kết nối...</span>
+      </span>
+      <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Bật/tắt âm thanh thông báo">🔔</button>
+      <span class="topbar-user" id="adminName"></span>
+      <button class="btn-sm btn-outline" onclick="doLogout()">Đăng xuất</button>
+    </div>
+  </div>
+
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab on" data-tab="dashboard" onclick="switchTab('dashboard')">📊 Tổng quan</button>
+    <button class="nav-tab" data-tab="orders" onclick="switchTab('orders')">📦 Đơn hàng</button>
+    <button class="nav-tab" data-tab="products" onclick="switchTab('products')">🍹 Sản phẩm</button>
+    <button class="nav-tab" data-tab="analytics" onclick="switchTab('analytics')">📈 Phân tích</button>
+    <button class="nav-tab" data-tab="reviews" onclick="switchTab('reviews')">⭐ Đánh giá</button>
+    <button class="nav-tab" data-tab="features" onclick="switchTab('features')">🏁 Tính năng</button>
+    <button class="nav-tab" data-tab="flashsales" onclick="switchTab('flashsales')">⚡ Flash Sale</button>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="tabDashboard">
+    <div class="dashboard" id="dashboardGrid">
+      <div class="loading"><span class="spinner"></span>Đang tải...</div>
+    </div>
+  </div>
+
+  <!-- Orders -->
+  <div id="tabOrders" style="display:none">
+    <div class="orders-header" id="orderFilters">
+      <button class="filter-btn on" data-s="" onclick="filterOrders(this,'')">Tất cả</button>
+      <button class="filter-btn" data-s="pending" onclick="filterOrders(this,'pending')">⏳ Chờ xác nhận</button>
+      <button class="filter-btn" data-s="confirmed" onclick="filterOrders(this,'confirmed')">✅ Đã xác nhận</button>
+      <button class="filter-btn" data-s="preparing" onclick="filterOrders(this,'preparing')">🍳 Đang pha chế</button>
+      <button class="filter-btn" data-s="delivering" onclick="filterOrders(this,'delivering')">🛵 Đang giao</button>
+      <button class="filter-btn" data-s="done" onclick="filterOrders(this,'done')">✅ Hoàn thành</button>
+      <button class="filter-btn" data-s="cancelled" onclick="filterOrders(this,'cancelled')">❌ Đã hủy</button>
+    </div>
+    <div class="order-list" id="orderList">
+      <div class="loading"><span class="spinner"></span>Đang tải đơn hàng...</div>
+    </div>
+  </div>
+
+  <!-- Products & Categories — Professional Admin Panel -->
+  <div id="tabProducts" style="display:none">
+    <!-- Sub-tabs: Products / Categories / Toppings / Cross-Sell -->
+    <div class="sub-tabs">
+      <button class="sub-tab on" data-sub="products" onclick="switchSubTab('products')">🍹 Sản phẩm</button>
+      <button class="sub-tab" data-sub="categories" onclick="switchSubTab('categories')">📁 Danh mục</button>
+      <button class="sub-tab" data-sub="toppings" onclick="switchSubTab('toppings')">🍡 Toppings</button>
+      <button class="sub-tab" data-sub="crossSell" onclick="switchSubTab('crossSell')">🛒 Cross-Sell</button>
+    </div>
+
+    <!-- SUB-PANEL: Products -->
+    <div class="sub-panel on" id="subProducts">
+      <div class="prod-toolbar">
+        <input class="prod-search" id="prodSearch" placeholder="🔍 Tìm sản phẩm..." oninput="filterProductsList()">
+        <button class="btn-add" onclick="openProductModal()">＋ Thêm sản phẩm</button>
+      </div>
+      <div id="productsContent">
+        <div class="loading"><span class="spinner"></span>Đang tải...</div>
+      </div>
+    </div>
+
+    <!-- SUB-PANEL: Categories -->
+    <div class="sub-panel" id="subCategories">
+      <div class="prod-toolbar">
+        <span style="font-size:12px;color:var(--text2)">Kéo thả để sắp xếp thứ tự danh mục</span>
+        <button class="btn-add" onclick="openCategoryModal()">＋ Thêm danh mục</button>
+      </div>
+      <div id="categoriesContent">
+        <div class="loading"><span class="spinner"></span>Đang tải...</div>
+      </div>
+    </div>
+
+    <!-- SUB-PANEL: Toppings -->
+    <div class="sub-panel" id="subToppings">
+      <div class="prod-toolbar">
+        <span style="font-size:12px;color:var(--text2)">Quản lý tất cả topping cho đồ uống</span>
+        <button class="btn-add" onclick="openToppingModal()">＋ Thêm topping</button>
+      </div>
+      <div id="toppingsContent">
+        <div class="loading"><span class="spinner"></span>Đang tải...</div>
+      </div>
+    </div>
+
+    <!-- SUB-PANEL: Cross-Sell ("Thêm cho đủ bữa?") -->
+    <div class="sub-panel" id="subCrossSell">
+      <div class="prod-toolbar">
+        <span style="font-size:12px;color:var(--text2)">Chọn món hiển thị trong "👉 Thêm cho đủ bữa?" khi khách thanh toán</span>
+        <button class="btn-add" onclick="openCrossSellModal()">＋ Thêm món</button>
+      </div>
+      <div id="crossSellContent">
+        <div class="loading"><span class="spinner"></span>Đang tải...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== MODAL OVERLAY (shared) ======== -->
+  <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal" id="modalDialog">
+      <div class="modal-head">
+        <div class="modal-title" id="modalTitle">Thêm sản phẩm</div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter">
+        <button class="btn btn-outline" style="width:auto;padding:10px 24px;font-size:13px" onclick="closeModal()">Hủy</button>
+        <button class="btn btn-brand" style="width:auto;padding:10px 24px;font-size:13px" id="modalSave">Lưu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics -->
+  <div id="tabAnalytics" style="display:none">
+    <div style="padding:16px 20px;display:flex;align-items:center;gap:8px">
+      <select id="analyticsDays" onchange="loadAnalytics()" style="padding:8px 12px;border:1.5px solid var(--bdr);border-radius:6px;font-size:12px;font-family:inherit">
+        <option value="7">7 ngày</option>
+        <option value="14">14 ngày</option>
+        <option value="30" selected>30 ngày</option>
+        <option value="90">90 ngày</option>
+      </select>
+    </div>
+    <div id="analyticsContent" style="padding:0 20px 100px">
+      <div class="loading"><span class="spinner"></span>Đang tải...</div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div id="tabReviews" style="display:none">
+    <div style="padding:16px 20px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="font-size:13px;color:var(--text2)">Đánh giá từ khách hàng sau khi nhận hàng.</div>
+        <select id="reviewsFilter" onchange="loadReviews()" style="padding:6px 10px;border:1.5px solid var(--bdr);border-radius:6px;font-size:12px;font-family:inherit">
+          <option value="">Tất cả sao</option>
+          <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+          <option value="4">⭐⭐⭐⭐ (4)</option>
+          <option value="3">⭐⭐⭐ (3)</option>
+          <option value="2">⭐⭐ (2)</option>
+          <option value="1">⭐ (1)</option>
+        </select>
+      </div>
+    </div>
+    <div id="reviewsContent" style="padding:0 20px 100px">
+      <div class="loading"><span class="spinner"></span>Đang tải...</div>
+    </div>
+  </div>
+
+  <!-- Feature Flags -->
+  <div id="tabFeatures" style="display:none">
+    <div style="padding:16px 20px">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Bật/tắt từng tính năng. Tắt → khách không thấy, data vẫn giữ.</div>
+    </div>
+    <div id="flagsContent" style="padding:0 20px">
+      <div class="loading"><span class="spinner"></span>Đang tải...</div>
+    </div>
+    <div style="padding:0 20px 100px">
+      <div class="section-title">⚙️ Cài đặt giá trị</div>
+      <div id="settingsContent">
+        <div class="loading"><span class="spinner"></span>Đang tải...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flash Sales -->
+  <div id="tabFlashSales" style="display:none">
+    <div style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-weight:600;font-size:16px">⚡ Flash Sale</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:4px">Tạo chương trình giảm giá giới hạn thời gian + số lượng</div>
+      </div>
+      <button class="btn btn-primary" onclick="openFlashSaleModal()">+ Tạo Flash Sale</button>
+    </div>
+    <div id="flashSalesList" style="padding:0 20px 100px">
+      <div class="loading"><span class="spinner"></span>Đang tải...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Flash Sale Modal -->
+<div id="flashSaleModal" class="modal" style="display:none">
+  <div class="modal-content" style="max-width:480px">
+    <div class="modal-header">
+      <span class="modal-title">Tạo Flash Sale</span>
+      <button class="modal-close" onclick="closeModal('flashSaleModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label>Tên chương trình *</label>
+      <input type="text" id="fsTitle" placeholder="VD: Giảm 50% Trà Sữa" maxlength="200">
+
+      <label>Mô tả ngắn</label>
+      <input type="text" id="fsSubtitle" placeholder="VD: Chỉ hôm nay!" maxlength="300">
+
+      <div style="display:flex;gap:12px">
+        <div style="flex:1">
+          <label>Giảm giá (%)</label>
+          <input type="number" id="fsDiscount" min="1" max="90" value="50">
+        </div>
+        <div style="flex:1">
+          <label>Số lượng tối đa</label>
+          <input type="number" id="fsMaxQty" min="1" value="20">
+        </div>
+      </div>
+
+      <label>Sản phẩm áp dụng (bỏ trống = toàn menu)</label>
+      <div id="fsProductCheckboxes" style="display:flex;flex-wrap:wrap;gap:6px;max-height:200px;overflow-y:auto">
+        <span style="color:#999;font-size:12px">Đang tải...</span>
+      </div>
+
+      <div style="display:flex;gap:12px">
+        <div style="flex:1">
+          <label>Bắt đầu</label>
+          <input type="datetime-local" id="fsStartsAt">
+        </div>
+        <div style="flex:1">
+          <label>Kết thúc</label>
+          <input type="datetime-local" id="fsEndsAt">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('flashSaleModal')">Hủy</button>
+      <button class="btn btn-primary" onclick="createFlashSale()">Tạo Flash Sale</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Notification sound -->
+<audio id="notifSound" preload="auto" src="/sounds/new-order.wav"></audio>
+
+<script type="module" src="/src/admin/main.js"></script>
+</body>
+</html>
